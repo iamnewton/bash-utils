@@ -1,0 +1,99 @@
+#!/usr/bin/env bash
+#
+# Author:
+#   Newton (@chrisopedia)
+#
+# Description:
+#   Grabs random placholder images from hhhhold.com, allows you to
+#   download images, copy to pasteboard, move to a specified output
+#
+# Dependencies:
+#   None
+#
+# Usage
+#   `fpo 5 300x169 sports fpo/images // 5 300x169 pixel sports images downloaded to fpo/images
+#   `fpo 300x169 sports fpo/images // 1 300x169 pixel sports images downloaded to fpo/images
+#   `fpo sports fpo/images // errors as there is no size
+#   `fpo 300x169 fpo/images // 1 300x169 pixel random image downloaded to fpo/images
+#   `fpo 300x169 // 1 300x169 pixel random images downloaded to cwd
+
+# allowable categories
+# categories=(abstract animals business cats city food nightlife fashion people nature sports technics transport)
+# regex to test for number
+re='^[0-9]+$'
+
+# if the first positional parameter is not a number, its the dimension
+# set the amount to 1 and dimensions to what was passed in
+# remove the dimensions from the positional parameters
+# if not, set amount and dimensions to what was passed in
+# remove both positional parameters
+if ! [[ $1 =~ $re ]]; then
+	amount=1
+	dimensions=$1
+	shift 1
+else
+	amount=$1
+	dimensions=$2
+	shift 2
+fi
+
+# split dimensions argument by letter 'x'
+#dimensions=(${dimensions//x/ })
+
+# check if dimensions is empty, if it is error and exit
+# this is there to ensure that the dimensions is passed in at the very leaset
+if [[ -z ${dimensions} ]]; then
+	printf "%s: %s: Width and height must be supplied" "$(basename $0)" "${dimensions}"
+	exit 1
+fi
+
+# if the next parameter passed in is not a directory
+# then its the format and directory is the next one
+# remove the format positional parameter
+# if it is a directory then assume default format of 'png'
+if [[ ! -d $1 ]]; then
+	format=$1
+	directory=$2
+	shift 1
+else
+	format="png"
+	directory=$1
+fi
+
+api_url="http://hhhhold.com/"
+
+# http://stackoverflow.com/questions/238073/how-to-add-a-progress-bar-to-a-shell-script
+# start progress bar
+while :;do echo -n .;sleep 1;done &
+
+# check response header from github user passed in
+# http://stackoverflow.com/a/10724976/1536779
+response="$(curl --write-out %{http_code} --silent --output /dev/null "${api_url}")"
+
+# kill the progress bar
+kill $!; trap 'kill $!' SIGTERM
+
+# if reponse is greater than or equal to 400 somethings wrong
+if [[ "${response}" -ge 400 ]]; then
+	printf '%s: %s is unavailable. Try again later\n' "$(basename "$0")" "$api_url"
+	#debug statement
+	#printf 'Github HTTP Response code: %s\n' "${response}"
+	exit 3
+fi
+
+URL="${api_url}/${dimensions}/${format}"
+
+#check if only 1 requested, no loop
+if [[ $amount -gt 1 ]]; then
+	counter=1
+	#random=$(shuf -i 1-10 -n 1)
+	while [ $counter -lt $amount ]
+	do
+		#wget ${URL} -O ${dimensions}_${counter}.${format} -P ${directory}
+		curl -#fLo "${directory}/${dimensions}_${counter}.${format}" "${URL}"
+		let counter=counter+1
+	done
+else
+	#wget ${URL} -O ${dimensions}_$(shuf -i 1-10 -n 1).${format} -P ${directory}
+	curl -#fLo "${directory}/${dimensions}_$(shuf -i 1-10 -n 1).${format}" "${URL}"
+fi

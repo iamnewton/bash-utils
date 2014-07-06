@@ -1,0 +1,21 @@
+#!/usr/bin/env bash
+#
+# Author:
+#   Zac Holman (@holman)
+#
+# Description:
+#   Creates something for me to do
+#
+# Dependencies:
+#   None
+#
+# Configuration:
+#   @param   file    required
+#
+# Usage:
+#   `todo task1`
+
+set -e
+
+# Run our new web 2.0 todo list application and raise millions of VC dollars.
+touch "${HOME}/Desktop/$*"

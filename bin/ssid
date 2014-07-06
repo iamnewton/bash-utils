@@ -1,0 +1,28 @@
+#!/usr/bin/env bash
+#
+# Author:
+#   Ben Alman (@cowboy)
+#
+# Description:
+#   Print out current WiFi network's SSID
+#
+# Dependencies:
+#   None
+#
+# Usage:
+#   `ssid`
+
+usage="$(basename "$0"): usage: $(basename "$0")"
+ssid=$(/System/Library/PrivateFrameworks/Apple80211.framework/Versions/A/Resources/airport -I | grep " SSID" | sed "s/.*: //")
+
+if [[ "$1" == "-h" || "$1" == "--help" ]]; then
+	printf '%s\n' "$usage"
+fi
+
+if [ "$1" ]; then
+	if [ "$(echo $ssid | grep -w $1)" ]; then
+		echo $1
+	fi
+else
+	echo $ssid
+fi

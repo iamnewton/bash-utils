@@ -1,0 +1,31 @@
+#!/usr/bin/env bash
+#
+# Author:
+#   Newton (@chrisopedia)
+#
+# Description:
+#   Allows you to run html, css or js linter from command line
+#
+# Dependencies:
+#   [htmlinspect](https://github.com/philipwalton/html-inspector)
+#   [csslint](https://github.com/stubbornella/csslint/wiki/Command-line-interface)
+#   [jslint](https://github.com/reid/node-jslint)
+#
+# Configuration:
+#   @param  directory    required
+#
+# Usage:
+#   `lint css app/styles.css`
+#   `lint html app/index.html`
+#   `lint js app/scripts.js`
+
+if [[ $1 == "html" ]]; then
+	htmlinspector "$2"
+elif [[ $1 == "css" ]]; then
+	csslint "$2"
+elif [[ $1 == "js" ]]; then
+	jslint "$2"
+else 
+	printf 'bash: %s: %s: Invalid option\n' "$(basename "$0")" "$1"
+	printf "%s: usage: %s [[-c|--css]| [-h|--html]| [-j|--javascript]] %sfile%s\n" "$(basename $0)" "$(basename $0)" "$(tput smul)" "$(tput rmul)"
+fi

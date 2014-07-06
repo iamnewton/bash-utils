@@ -1,0 +1,45 @@
+#!/usr/bin/env ruby
+#
+# Author:
+#   Chris Wanstrath (@defunkt)
+#
+# Description: 
+#   Turns a github.com URL into a git.io URL
+#   Copies the git.io URL to your clipboard.
+#   [Source](https://gist.github.com/defunkt/1209316)
+#
+# Dependencies:
+#   None
+#
+# Configuration:
+#   @param   url    required
+#   @param   code   optional, specify your own shortener
+#
+# Usage: 
+#   ```
+#   $ gitio https://github.com/chrisopedia/bash mybash
+#   $ http://git.io/mybash
+#   ```
+
+url = ARGV[0]
+code = ARGV[1]
+
+if url !~ /^(https?:\/\/)?(gist\.)?github.com/
+    abort "⊘ Error: Github.com URLs only"
+end
+
+if url !~ /^http/
+    url = "https://#{url}"
+end
+
+if code
+    code = "-F code=#{code}"
+end
+
+output = `curl -i http://git.io -F 'url=#{url}' #{code} 2> /dev/null`
+if output =~ /Location: (.+)\n?/
+    puts $1
+    `echo #$1 | pbcopy`
+else
+    puts output
+end

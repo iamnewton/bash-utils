@@ -1,0 +1,47 @@
+#!/usr/bin/env bash
+#
+# Author:
+#   Miller Medeiros (@millermedeiros)
+#   https://gist.github.com/millermedeiros/6615994
+#
+# Description:
+#   Download the Virtual Box images for IE VMs
+#
+# Dependencies:
+#   None
+#
+# Configuration:
+#   @param   version number    required
+#
+# Usage:
+#   `ie-vm 8`
+
+ie-vm() {
+	local usage="$(basename "$0"): usage: $(basename "$0") [8|9|10|11]"
+	local baseUrl="https://az412801.vo.msecnd.net/vhd/IEKitV1_Final/VirtualBox/OSX/"
+	declare -A versions=( 
+		# IE8 XP
+		["8"]="IE8_XP/IE8.XP.For.MacVirtualBox.ova"
+		# IE9 Win7
+		["9"]="IE9_Win7/IE9.Win7.For.MacVirtualBox.part{1.sfx,2.rar,3.rar,4.rar,5.rar}"
+		# IE10 Win8
+		["10"]="IE10_Win8/IE10.Win8.For.MacVirtualBox.part{1.sfx,2.rar,3.rar}"
+		# IE11 Win8.1
+		["11"]="IE11_Win8.1/IE11.Win8.1.For.MacVirtualBox.part{1.sfx,2.rar,3.rar}"
+	)
+
+	# Test for known flags
+	for opt in $@
+	do
+		case $opt in
+			# test for an invalid flag, exit if not a valid flag
+			-*|--*)
+				printf '%sbash: %s: %s: Invalid option\n' "-" "$(basename "$0")" "$opt" >&2
+				printf '%s\n' "$usage"
+				exit 1
+				;;
+		esac
+	done
+
+	curl -O "$baseUrl/$version[$1]"
+}

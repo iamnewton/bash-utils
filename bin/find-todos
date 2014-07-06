@@ -1,0 +1,74 @@
+#!/usr/bin/env bash
+#
+# Author:
+#   Newton (@chrisopedia)
+#
+# Description:
+#   Finds all the @TODOs in a specified directory. Defaults to the 
+#   current directory.
+#
+# Dependencies:
+#   None
+#
+# Usage:
+#   `find-todos [-o <file>] [directory|file]`
+#
+# Examples:
+#   `find-todos -o stuff-to-do.md ~/Desktop // searches ~/Desktop, outputs to stuff-to-do.md
+#   `find-todos -o stuff-to-do.md // Searches cwd, outputs to stuff-to-do.md
+#   `find-todos -o // no option passed, error
+#   `find-todos ~/Desktop // Searches ~/Desktop, outputs to todo.md in cwd
+#   `find-todos // searches cwd, outputs to todo.md in cwd
+
+# @TODO: setup format of todo.md file such that it will be clickable to either line of file or commit hash on github
+# @TODO: turn any todo into an issue on Github
+# grep -nr --exclude="find-todos" "@TODO:" ${directory} | awk -F: 'path=split($1,arr,"/") ( length($4) > 0 ) {print "* "$2": ("arr[length(arr) - 1]"/"arr[length(arr)]") - "substr($4,2)}' >> "${output}"
+
+usage="$(basename $0): usage: $(basename $0) [-o|--output $(tput smul)file$(tput rmul)] [dir|file]"
+
+# Test for known flags
+for opt in "$@"
+do
+	case "$opt" in
+		-o | --output)
+			output=$2
+			shift 2
+			;;
+		-*)
+			printf 'bash: %s: %s: invalid option\n%s\n' "$(basename "$0")" "$1" "${usage}"
+			exit 2
+			;;
+		*)  # No more options
+			break
+			;;
+	esac
+done
+
+if [[ "$1" == "-o" ]] || [[ "$2" == "-o" ]]; then
+	printf 'bash: %s: %s: invalid option\n%s\n' "$(basename "$0")" "$1" "${usage}"
+	exit 2
+fi
+
+if [[ -f "$1" || -d "$1" ]]; then
+	directory=$1
+else
+	directory="${PWD}"
+fi
+
+if [[ ! -z "${output}" ]]; then
+	output="${directory}/${output}"
+else
+	output="${directory}/TODO.md"
+fi
+
+if ! grep -nr "@TODO:" ${directory} &>/dev/null; then
+	printf 'No results found\n'
+	exit 1
+else
+	rm -rf "${output}"
+	echo "# TODO" > "${output}"
+	echo >> "${output}"
+	# grep -v grep excludes this line from being included (http://superuser.com/a/409658)
+	grep -nr "@TODO:" ${directory} | grep -v grep |  awk -F: 'path=split($1,arr,"/") ( length($4) > 0 ) {print "* "$2": ("arr[length(arr) - 1]"/"arr[length(arr)]") - "substr($4,2)}' >> "${output}"
+	printf "TODOs can be found in ${output}\n"
+fi

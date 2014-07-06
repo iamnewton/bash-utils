@@ -1,0 +1,23 @@
+#!/usr/bin/env bash
+#
+# Author(s):
+#   Nicolas Gallagher (@necolas)
+#
+# Description:
+#   Recursively delete files that match a certain pattern
+#
+# Dependencies:
+#   None
+#
+# Configuration:
+#   @param    file    required
+#
+# Usage:
+#   `cleanup filename.txt`
+
+# (find .) Find within the current directory
+# (-type f) match anything with the type of regular file
+# (-name "${1}") last component of the pathname matches argument
+# (-ls) printout the standard output of matched files
+# (-delete) delete the matched files
+find . -type f -name "${1}" -ls -delete

@@ -1,0 +1,42 @@
+#!/usr/bin/env bash
+#
+# Author:
+#   Newton (@chrisopedia)
+#
+# Description:
+#   Change into directory, list all files
+#
+# Dependencies:
+#   None
+#
+# Configuration:
+#   @param   dir    optional
+#
+# Usage:
+#   `cdls ~/Downloads`
+
+usage="$(basename $0): usage: $(basename $0) [-r] [dir]"
+
+# Test for known flags
+for opt in $@
+do
+	case $opt in
+		-r)
+			ORDER="-r"
+			;;
+		# test for an invalid flag, exit if not a valid flag
+		-*|--*)
+			printf "bash: %s: %s: Invalid option\n%s\n" "$(basename "$0")" "$opt" "${usage}"
+			exit 1
+			;;
+	esac
+done
+
+# if operand is not a directory, and not empty
+if [[ -d "$1" ]]; then
+	cd $1
+else
+	cd .
+fi
+
+ls ${ORDER}

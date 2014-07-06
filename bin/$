@@ -1,0 +1,20 @@
+#!/usr/bin/env bash
+#
+# Author:
+#   Ben Alman (@cowboy)
+#
+# Description:
+#   Wrapper to prevent bad copy/paste of bash commands
+#   Ever pasted "$ somecommand" into the terminal and gotten this error?
+#   -bash: $: command not found
+#
+#   Begone, silly errors! Lazy copy + paste forever!! ETCETERA!!!!
+#
+# Dependencies:
+#   None
+#
+# Usage:
+#   `$ command`
+
+printf "%s⚠ Warning:%s Quit pasting in commands from the internet, you lazy ass!\n" "$(tput setaf 3)" "$(tput sgr0)"
+"$@"

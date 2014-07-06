@@ -1,0 +1,26 @@
+#!/usr/bin/env bash
+#
+# Author:
+#   Nicolas Gallagher (@necolas)
+#
+# Description:
+#   Compare original and gzipped file size
+#
+# Dependencies:
+#   None
+#
+# Configuration:
+#   @param   file    required
+#
+# Usage:
+#   `compare-zip filename.txt`
+
+# (wc -c) count the bytes of passed in file, pass to stdout
+orig=$(wc -c < "$1")
+# (gzip -c) pass gzipped file to stdout, pipe output to byte count
+gzip=$(gzip -c "$1" | wc -c)
+# evaluate the expression
+ratio=$(expr $gzip \* 100 / $orig)
+
+printf "orig: %d bytes\n" "${orig}"
+printf "gzip: %d bytes (%2.2f%%)\n" "${gzip}" "${ratio}"

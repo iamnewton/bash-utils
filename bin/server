@@ -1,0 +1,47 @@
+#!/usr/bin/env bash
+#
+# Author:
+#   Nicolas Gallagher (@necolas)
+#   Ben Alman (@cowboy)
+#
+# Description:
+#   Start an HTTP server from a directory, optionally specifying the port
+#
+# Dependencies:
+#   PHP 5.4.0+
+#   Python
+#
+# Configuration:
+#   @param   file    required
+#
+# Usage:
+#   `create-server [php | [py|python]]`
+#
+
+# Start an HTTP server from a directory, optionally specifying the port
+create-server() {
+	if [[ $1 == 'py' ]] || [[ $1 == 'python' ]]; then
+		# Get port (if specified)
+		local port="${1:-8000}"
+
+		# Open in the browser
+		open "http://localhost:${port}/"
+
+		# Redefining the default content-type to text/plain instead of the default
+		# application/octet-stream allows "unknown" files to be viewable in-browser
+		# as text instead of being downloaded.
+		#
+		# Unfortunately, "python -m SimpleHTTPServer" doesn't allow you to redefine
+		# the default content-type, but the SimpleHTTPServer module can be executed
+		# manually with just a few lines of code.
+		python -c $'import SimpleHTTPServer;\nSimpleHTTPServer.SimpleHTTPRequestHandler.extensions_map[""] = "text/plain";\nSimpleHTTPServer.test();' "$port"
+	fi
+
+	if [[ $1 == 'php' ]]; then
+		# Start a PHP server from a directory, optionally specifying the port
+		local port="${1:-4000}"
+		local ip=$(ipconfig getifaddr en1)
+		sleep 1 && open "http://${ip}:${port}/" &
+		php -S "${ip}:${port}"
+	fi
+}

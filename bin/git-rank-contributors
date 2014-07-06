@@ -1,0 +1,54 @@
+#!/usr/bin/env ruby
+#
+# Author:
+#   William Morgan (@wmorgan)
+#
+# Description:
+#   a simple script to trace through the logs and rank contributors by 
+#   the total size of the diffs of which they're responsible.  A change 
+#   counts twice as much as a plain addition or deletion.
+#
+# Dependencies:
+#   None
+#
+# Usage:
+#   http://stackoverflow.com/a/10978258
+#   `git rank-contributors`
+
+class String
+    def obfuscate; gsub(/@/, " at the ").gsub(/\.(\w+)(>|$)/, ' dot \1s\2') end
+    def htmlize; gsub("&", "&amp;").gsub("<", "&lt;").gsub(">", "&gt;") end
+end
+
+lines = {}
+verbose = ARGV.delete("-v")
+obfuscate = ARGV.delete("-o")
+htmlize = ARGV.delete("-h")
+
+author = nil
+state = :pre_author
+`git log -M -C -C -p --no-color`.split("\n").each do |l|
+    case
+    when (state == :pre_author || state == :post_author) && l =~ /Author: (.*)$/
+        author = $1
+        state = :post_author
+        lines[author] ||= 0
+    when state == :post_author && l =~ /^\+\+\+/
+        state = :in_diff
+    when state == :in_diff && l =~ /^[\+\-]/
+        lines[author] += 1
+    when state == :in_diff && l =~ /^commit /
+        state = :pre_author
+    end
+end
+
+lines.sort_by { |a, c| -c }.each do |a, c|
+    a = a.obfuscate if obfuscate
+    a = a.htmlize if htmlize
+    if verbose
+        puts "#{a}: #{c} lines of diff"
+    else
+        puts a
+    end
+end
+

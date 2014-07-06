@@ -1,0 +1,147 @@
+#!/usr/bin/env bash
+#
+# Author:
+#   PJ (@pjkix)
+#
+# Description:
+#   [v1.0.6](https://gist.github.com/pjkix/1265822)
+#   Generates CSS stats
+#
+# Dependencies
+#   [ack](http://betterthangrep.com/)
+#   Install using [xCode Command Line tools](https://developer.apple.com/downloads/index.action)
+#
+# Configuration:
+#   None
+#
+# Usage:
+#   `css-stats`
+#
+# Example of Output
+#
+# CSS STATS
+# ----------
+# Floats:  132
+# Headings:  107
+# Margins:  432
+# Paddings:  463
+# Font-Sizes:  170
+# Importants:  56
+
+echo 'CSS STATS'
+echo '========='
+echo
+
+echo 'General: '
+echo '----------'
+
+# Number of Files
+echo -n "Number of CSS files: "
+ack --css -f | wc -l
+# Number of Lines
+echo -n "Number of Lines of Code (LoC)"
+ack --nogroup --css --passthru * | wc -l | xargs
+# Longest File
+echo 'File Length (LoC):'
+find . -iname "*.css" | xargs wc -l | sort -r
+echo
+echo 'File Size (KBytes)'
+# find . -iname "*.css" | xargs ls -l | awk '{print $5 "\t" $9}' | sort -nr ## Bytes
+# find . -iname "*.css" | xargs ls -l | awk '{printf("%.1fK\t", $5 / 1024); print  "\t" $9}' | sort -nr ## KB
+find . -iname "*.css" -print0 | xargs -0 du -hsc | sort -nr ## block size
+# find . -iname "*.css" -print0 | du -hsc  ## block size
+# stat -f "%z  Bytes" stats.sh ## actual file size in bytes
+echo
+
+# Properties
+echo 'Props: '
+echo '----------'
+# append search results
+# echo -n "test:"
+echo -n "Floats: "
+ack --nogroup --css float | wc -l
+echo -n "Headings: "
+ack --nogroup --css h[1-6] | wc -l
+echo -n "Margins: "
+ack --nogroup --css margin | wc -l
+echo -n "Margins 0: "
+ack --nogroup --css --match="margin-?(top|right|bottom|left)?\s*:\s*0" | wc -l
+echo -n "Paddings: "
+ack --nogroup --css padding | wc -l
+echo -n "Padding 0: "
+ack --nogroup --css --match="padding-?(top|right|bottom|left)?\s*:\s*0" | wc -l
+echo -n "Font-Sizes: "
+ack --nogroup --css font-size | wc -l
+echo -n "Importants: "
+ack --nogroup --css important | wc -l
+echo
+
+# Total Rules
+echo 'Rules:'
+echo '----------'
+ack --nogroup --css --match="{" -o -h | wc -l
+echo
+
+## Layout
+echo 'Layout:'
+echo '----------'
+echo -n "Display: "
+ack --nogroup --css --match="display" -o -h | wc -l
+echo -n "Float: "
+ack --nogroup --css --match="float" -o -h | wc -l
+echo -n "Position: "
+ack --nogroup --css --match="position" -o -h | wc -l
+echo -n "Top: "
+ack --nogroup --css --match="top" -o -h | wc -l
+echo -n "Right: "
+ack --nogroup --css --match="right" -o -h | wc -l
+echo -n "Bottom: "
+ack --nogroup --css --match="bottom" -o -h | wc -l
+echo -n "Left: "
+ack --nogroup --css --match="left" -o -h | wc -l
+echo -n "Width: "
+ack --nogroup --css --match="width" -o -h | wc -l
+echo -n "Height: "
+ack --nogroup --css --match="height" -o -h | wc -l
+echo
+
+# Colors
+echo 'Colors:'
+echo '----------'
+echo -n "Color: "
+ack --nogroup --css --match="color" -o -h | wc -l
+echo -n "White: "
+ack --nogroup --css --match="(#[fF]{3,6}|white)" -o -h | wc -l
+echo -n "Black: "
+ack --nogroup --css --match="(#[0]{3,6}|black)" -o -h | wc -l
+echo -n "Background: "
+ack --nogroup --css --match="background" -o -h | wc -l
+echo -n "Hex: "
+ack --nogroup --css --match="#[0-9a-fA-F]{3,6}" -o -h | wc -l
+echo -n "RGB(a): "
+ack --nogroup --css --match="rgba?\w*\(.*\)" -o -h | wc -l
+echo
+
+# Unique
+echo 'Unique Colors:'
+echo '----------'
+echo -n 'Hex: '
+ack --nogroup --css --match="#[0-9a-fA-F]{3,6}" -o -h | sort | uniq -i -c | wc -l
+echo
+ack --nogroup --css --match="#[0-9a-fA-F]{3,6}" -o -h | sort | uniq -i -c | sort -r
+echo
+echo -n 'RGB(a): '
+ack --nogroup --css --match="rgba?\w*\(.*\)" -o -h | sort | uniq -i -c | wc -l
+echo
+ack --nogroup --css --match="rgba?\w*\(.*\)" -o -h | sort | uniq -i -c | sort -r
+echo
+
+# Images
+echo "Images:"
+echo '----------'
+echo -n "URLs:"
+ack --nogroup --css --match="url\w?\(.*\)" -o -h | wc -l
+echo -n "Unique URLs:"
+ack --nogroup --css --match="url\w?\(.*\)" -o -h | sort | uniq -i -c | wc -l
+echo
+ack --nogroup --css --match="url\w?\(.*\)" -o -h | sort | uniq -i -c | sort -r
