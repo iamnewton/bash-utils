@@ -20,10 +20,7 @@
 #   `find-todos ~/Desktop // Searches ~/Desktop, outputs to todo.md in cwd
 #   `find-todos // searches cwd, outputs to todo.md in cwd
 
-# @TODO: setup format of todo.md file such that it will be clickable to either line of file or commit hash on github
 # @TODO: turn any todo into an issue on Github
-# grep -nr --exclude="find-todos" "@TODO:" ${directory} | awk -F: 'path=split($1,arr,"/") ( length($4) > 0 ) {print "* "$2": ("arr[length(arr) - 1]"/"arr[length(arr)]") - "substr($4,2)}' >> "${output}"
-
 usage="$(basename $0): usage: $(basename $0) [-o|--output $(tput smul)file$(tput rmul)] [dir|file]"
 
 # Test for known flags
@@ -69,6 +66,7 @@ else
 	echo "# TODO" > "${output}"
 	echo >> "${output}"
 	# grep -v grep excludes this line from being included (http://superuser.com/a/409658)
-	grep -nr "@TODO:" ${directory} | grep -v grep |  awk -F: 'path=split($1,arr,"/") ( length($4) > 0 ) {print "* "$2": ("arr[length(arr) - 1]"/"arr[length(arr)]") - "substr($4,2)}' >> "${output}"
+	github_url="$(git remote show -n origin | grep 'Fetch URL' | awk -F: '{print $2 ":" substr($3, 0, length($3)-4) }')"
+	grep -nr "@TODO:" ${directory} | grep -v grep | awk -F: 'path=split($1,arr,"/") ( length($4) > 0 ) {print "- [ ] ["arr[length(arr) - 1]"/"arr[length(arr)]":"$2"]("url"/blob/master/"arr[length(arr) - 1]"/"arr[length(arr)]"#L"$2") - "substr($4,2)}' url="$github_url" >> "${output}"
 	printf "TODOs can be found in ${output}\n"
 fi
