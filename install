@@ -1,0 +1,66 @@
+#!/usr/bin/env bash
+
+DIR="/usr/local/opt/bash-utils"
+GITHUB_USER="chrisopedia"
+
+# If missing, download and extract the bash-utils repository
+if [[ ! -d "${DIR}" ]]; then
+
+    # no bash directory found
+    printf "$(tput bold ; tput setaf 3)⚠ Warning: $(tput sgr0)%s!\n" "No ${DIR} found"
+
+    # create directory
+    printf "$(tput setaf 6)┃ $(tput sgr0)$(tput setaf 7)%s...$(tput sgr0)\n" "Creating directory at ${DIR}"
+    mkdir -p "${DIR}"
+
+    # Download the repository as a tarball
+    printf "$(tput setaf 6)┃ $(tput sgr0)$(tput setaf 7)%s...$(tput sgr0)\n" "Downloading repository to /tmp directory"
+    curl -#fLo /tmp/bash-utils.tar.gz "https://github.com/${GITHUB_USER}/bash-utils/tarball/master"
+
+    # Extract to the bash-utils directory
+    printf "$(tput setaf 6)┃ $(tput sgr0)$(tput setaf 7)%s...$(tput sgr0)\n" "Extracting files to ${DIR}"
+    tar -zxf /tmp/bash-utils.tar.gz --strip-components 1 -C "${DIR}"
+
+    # Remove the tarball
+    printf "$(tput setaf 6)┃ $(tput sgr0)$(tput setaf 7)%s...$(tput sgr0)\n" "Removing tarball from /tmp directory"
+    rm -rf /tmp/bash-utils.tar.gz
+
+    printf "$(tput setaf 2)✓ Success: $(tput sgr0)%s.\n" "${DIR} created, repository downloaded and extracted"
+fi
+
+# Change to the bash-utils directory
+cd "${DIR}"
+
+# Initialize the git repository if it's missing
+printf "$(tput setaf 6)┃ $(tput sgr0)$(tput setaf 7)%s...$(tput sgr0)\n" "Initializing git repository"
+git init
+
+printf "$(tput setaf 6)┃ $(tput sgr0)$(tput setaf 7)%s...$(tput sgr0)\n" "Adding https://github.com/${GITHUB_USER}/dotfiles.git as origin"
+git remote add origin "https://github.com/${GITHUB_USER}/dotfiles.git"
+
+printf "$(tput setaf 6)┃ $(tput sgr0)$(tput setaf 7)%s...$(tput sgr0)\n" "Downloading changes from origin"
+git fetch origin master
+
+# Reset the index and working tree to the fetched HEAD
+# (submodules are cloned in the subsequent sync step)
+printf "$(tput setaf 6)┃ $(tput sgr0)$(tput setaf 7)%s...$(tput sgr0)\n" "Resetting index & working tree to fetched HEAD"
+git reset --hard FETCH_HEAD
+
+# Remove any untracked files
+printf "$(tput setaf 6)┃ $(tput sgr0)$(tput setaf 7)%s...$(tput sgr0)\n" "Removing any untracked files"
+git clean -fd
+
+[[ $? ]] && printf "$(tput setaf 2)✓ Success: $(tput sgr0)%s.\n" "Repository has been initialized"
+
+# Pull down the latest changes
+printf "$(tput setaf 6)┃ $(tput sgr0)$(tput setaf 7)%s...$(tput sgr0)\n" "Pulling down latest changes"
+git pull --rebase origin master
+
+# Update submodules
+printf "$(tput setaf 6)┃ $(tput sgr0)$(tput setaf 7)%s...$(tput sgr0)\n" "Updating submodules"
+git submodule update --recursive --init --quiet
+
+[[ $? ]] && printf "$(tput setaf 2)✓ Success: $(tput sgr0)%s.\n" "Repository has been updated"
+
+printf "$(tput setaf 6)┃ $(tput sgr0)$(tput setaf 7)%s...$(tput sgr0)\n" "Symlinking ${DIR}/bin/* to /usr/local/bin/"
+ln -fs "${DIR}/bin/*" "/usr/local/bin/"
