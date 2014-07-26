@@ -2,6 +2,8 @@
 
 Just a lot of bash functions and scripts I've created and collected over the years.
 
+[![Version 1.3.0](http://img.shields.io/badge/version-1.3.0-brightgreen.svg)](https://github.com/chrisopedia/bash/releases/tag/1.3.0) [![Stories in Ready](https://badge.waffle.io/chrisopedia/bash-utils.png?label=Ready)](http://waffle.io/chrisopedia/bash-utils)
+
 ## Requirements
 
 * [xCode Command Line Tools](https://developer.apple.com/downloads)
@@ -25,6 +27,7 @@ $ bash -c "$(curl -#fL raw.github.com/chrisopedia/bash-utils/go/install)"
 * `datauri` - Create a data URI from a file and copy it to the pasteboard
 * `draw-ruler` - Draw a ruler across the screen
 * `eachdir` - Run one or more commands in one or more directories
+* `extract` - Unarchive various compression formats based on extension
 * `favicon` - Favicon and Apple Touch Icon Generator
 * `find-todos` - Finds all the @TODOs in a specified directory
 * `fpo` - Grabs random placholder images from hhhhold.com and downloads images
@@ -41,11 +44,13 @@ $ bash -c "$(curl -#fL raw.github.com/chrisopedia/bash-utils/go/install)"
 * `lint` - Allows you to check your html, css or js
 * `makefile` - Creates a Makefile for encrypting passwords/sensitive data in repos
 * miscellaneous - Various helper scripts
-* `note` - Add note to Notes.app (OS X 10.8)
-* `remind` - Add reminder to Reminder.app (OS X 10.8)
+* `osx-create-installer` - Create an OS X "USB Install Stick" from InstallESD.dmg
+* `pid` - Get the PIDs of all matching processes for all specified processnames.
+* `resample-dpi` - Resample specified images to 72 DPI
 * `server` - Start an HTTP server from a directory, optionally specifying the port
 * `ssid` - Print out current WiFi network's SSID
 * `todo` - Creates a todo item on Desktop
+* `today` - Creates/updates Today's todo list
 
 ## Acknowledgements
 
@@ -56,7 +61,3 @@ Inspiration and code was taken from many sources, including (in lexicographical 
 * [@mathiasbynens](https://github.com/mathiasbynens) (Mathias Bynens) https://github.com/mathiasbynens/dotfiles
 * [@necolas](https://github.com/necolas) (Nicolas Gallagher) https://github.com/necolas/dotfiles
 * [@wmorgan](https://github.com/wmorgan) (William Morgan)
-
-* * *
-
-[![Bitdeli Badge](https://d2weczhvl823v0.cloudfront.net/chrisopedia/bash-utils/trend.png)](https://bitdeli.com/free "Bitdeli Badge") [![Stories in Ready](https://badge.waffle.io/chrisopedia/bash-utils.png?label=Ready)](http://waffle.io/chrisopedia/bash-utils) [![Donate on Gittip](http://img.shields.io/gittip/alanhamlett.png)](https://www.gittip.com/chrisopedia/) [![Version 1.2.0](http://img.shields.io/badge/version-1.2.0-brightgreen.svg)](https://github.com/chrisopedia/bash/releases/tag/1.2.0) [![MIT License](http://img.shields.io/badge/license-MIT-lightgrey.svg)](https://github.com/chrisopedia/bash-utils/blob/master/LICENSE.md)
