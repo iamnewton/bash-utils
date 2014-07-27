@@ -64,6 +64,9 @@ git submodule update --recursive --init --quiet
 [[ $? ]] && printf "%s✓ Success:%s Repository has been updated.%s\n" "$(tput setaf 2)" "$(tput sgr0 ; tput setaf 7)" "$(tput sgr0)"
 
 printf "%s┃%s Symlinking %s/bin/* to /usr/local/bin/...%s\n" "$(tput setaf 6)" "$(tput sgr0 ; tput setaf 7)" "${DIR}" "$(tput sgr0)"
-ln -fs "${DIR}/bin/*" "/usr/local/bin/"
+for file in $(find "${DIR}/bin" -type f -execdir echo {} +);
+do
+	ln -fs "${DIR}/bin/${file}" "/usr/local/bin/${file}"
+done
 
 [[ $? ]] && printf "%s✓ Success:%s %s has been installed.%s\n" "$(tput setaf 2)" "$(tput sgr0 ; tput setaf 7)" "${DIR}" "$(tput sgr0)"
