@@ -11,7 +11,7 @@ if [[ ! -d "${DIR}" ]]; then
     printf "%s⚠ Warning:%s No %s found!\n" "$(tput bold ; tput setaf 3)" "$(tput sgr0)" "${DIR}"
 
     # create directory
-    printf "%s┃%s Creating directory at %s...\n" "$(tput setaf 6)" "$(tput sgr0 ; tput setaf 7)" "$(tput sgr0)" "${DIR}"
+    printf "%s┃%s Creating directory at %s...%s\n" "$(tput setaf 6)" "$(tput sgr0 ; tput setaf 7)" "${DIR}" "$(tput sgr0)"
     mkdir -p "${DIR}"
 
     # Download the repository as a tarball
@@ -19,11 +19,11 @@ if [[ ! -d "${DIR}" ]]; then
     curl -#fLo /tmp/${REPO}.tar.gz "https://github.com/${GITHUB_USER}/${REPO}/tarball/master"
 
     # Extract to the ${REPO} directory
-    printf "%s┃%s Extracting files to %s...\n" "$(tput setaf 6)" "$(tput sgr0 ; tput setaf 7)" "$(tput sgr0)" "${DIR}"
+    printf "%s┃%s Extracting files to %s...%s\n" "$(tput setaf 6)" "$(tput sgr0 ; tput setaf 7)" "${DIR}" "$(tput sgr0)"
     tar -zxf /tmp/${REPO}.tar.gz --strip-components 1 -C "${DIR}"
 
     # Remove the tarball
-    printf "%s┃%s Removing tarball from /tmp directory...\n" "$(tput setaf 6)" "$(tput sgr0 ; tput setaf 7)" "$(tput sgr0)"
+    printf "%s┃%s Removing tarball from /tmp directory...%s\n" "$(tput setaf 6)" "$(tput sgr0 ; tput setaf 7)" "$(tput sgr0)"
     rm -rf /tmp/${REPO}.tar.gz
 
     printf "%s✓ Success:%s %s created, repository downloaded and extracted.\n" "$(tput setaf 2)" "$(tput sgr0)" "${DIR}"
@@ -36,7 +36,7 @@ cd "${DIR}"
 printf "%s┃%s Initializing git repository...%s\n" "$(tput setaf 6)" "$(tput sgr0 ; tput setaf 7)" "$(tput sgr0)"
 git init
 
-printf "%s┃%s Adding https://github.com/%s/%s.git as origin...%s\n" "$(tput setaf 6)" "$(tput sgr0 ; tput setaf 7)" "$(tput sgr0)" "${GITHUB_USER}" "${REPO}"
+printf "%s┃%s Adding https://github.com/%s/%s.git as origin...%s\n" "$(tput setaf 6)" "$(tput sgr0 ; tput setaf 7)" "${GITHUB_USER}" "${REPO}" "$(tput sgr0)"
 git remote add origin "https://github.com/${GITHUB_USER}/${REPO}.git"
 
 printf "%s┃%s Downloading changes from origin...%s\n" "$(tput setaf 6)" "$(tput sgr0 ; tput setaf 7)" "$(tput sgr0)"
