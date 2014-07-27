@@ -1,0 +1,45 @@
+#!/usr/bin/env bash
+#
+# Author:
+#   Unknown 
+#
+# Description:
+#   Determine size of a file or total size of a directory
+#
+# Dependencies:
+#   None
+
+_fs() {
+	local usage="$(basename $0): usage: $(basename $0) [$(tput smul)file|dir$(tput rmul)]"
+	local arg opt
+
+	# Test for known flags
+	for opt in $@
+	do
+		case $opt in
+			-h|--help)
+				printf "%s\n" "${usage}"
+				exit
+				;;
+			# test for an invalid flag, exit if not a valid flag
+			-*|--*)
+				printf "%s: usage: %s: invalid option\n%s\n" "$(basename "$0")" "$opt" "${usage}"
+				exit 1
+				;;
+		esac
+	done
+
+	if du -b /dev/null > /dev/null 2>&1; then
+		arg=-sbh
+	else
+		arg=-sh
+	fi
+
+	if [[ -n "$@" ]]; then
+		du $arg -- "$@"
+	else
+		du $arg .[^.]* *
+	fi
+}
+
+_fs "$@"

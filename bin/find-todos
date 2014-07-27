@@ -20,53 +20,64 @@
 #   `find-todos ~/Desktop // Searches ~/Desktop, outputs to todo.md in cwd
 #   `find-todos // searches cwd, outputs to todo.md in cwd
 
-# @TODO: turn any todo into an issue on Github
-usage="$(basename $0): usage: $(basename $0) [-o|--output $(tput smul)file$(tput rmul)] [dir|file]"
+_find-todos() {
+	if ! type -P 'git' &> /dev/null; then
+		printf "%s⊘ Error:%s Git is required to run %s\n" "$(tput setaf 1)" "$(tput sgr0)" "$(basename $0)"
+		printf "Aborting!\n"
+		exit
+	fi
 
-# Test for known flags
-for opt in "$@"
-do
-	case "$opt" in
-		-o | --output)
-			output=$2
-			shift 2
-			;;
-		-*)
-			printf 'bash: %s: %s: invalid option\n%s\n' "$(basename "$0")" "$1" "${usage}"
-			exit 2
-			;;
-		*)  # No more options
-			break
-			;;
-	esac
-done
+	# @TODO: turn any todo into an issue on Github
+	local usage="$(basename $0): usage: $(basename $0) [-h|--help] [-o|--output $(tput smul)file$(tput smul)] [dir|file]"
+	local opt output directory github_url
 
-if [[ "$1" == "-o" ]] || [[ "$2" == "-o" ]]; then
-	printf 'bash: %s: %s: invalid option\n%s\n' "$(basename "$0")" "$1" "${usage}"
-	exit 2
-fi
+	# Test for known flags
+	for opt in "$@"
+	do
+		case "$opt" in
+			-o | --output)
+				output=$2
+				shift 2
+				;;
+			-*)
+				printf 'bash: %s: %s: invalid option\n%s\n' "$(basename "$0")" "$1" "${usage}"
+				exit 2
+				;;
+			*)  # No more options
+				break
+				;;
+		esac
+	done
 
-if [[ -f "$1" || -d "$1" ]]; then
-	directory=$1
-else
-	directory="${PWD}"
-fi
+	if [[ "$1" == "-o" ]] || [[ "$2" == "-o" ]]; then
+		printf 'bash: %s: %s: invalid option\n%s\n' "$(basename "$0")" "$1" "${usage}"
+		exit 2
+	fi
 
-if [[ ! -z "${output}" ]]; then
-	output="${directory}/${output}"
-else
-	output="${directory}/TODO.md"
-fi
+	if [[ -f "$1" || -d "$1" ]]; then
+		directory=$1
+	else
+		directory="${PWD}"
+	fi
 
-if ! grep -nr "@TODO:" ${directory} &>/dev/null; then
-	printf 'No results found\n'
-	exit 1
-else
-	rm -rf "${output}"
-	echo "# TODO" > "${output}"
-	echo >> "${output}"
-	# grep -v grep excludes this line from being included (http://superuser.com/a/409658)
-	github_url="$(git remote show -n origin | grep 'Fetch URL' | awk -F: '{print $2 ":" substr($3, 0, length($3)-4) }')"
-	grep -nr "@TODO:" ${directory} | grep -v grep | awk -F: 'path=split($1,arr,"/") ( length($4) > 0 ) {print "- [ ] ["arr[length(arr) - 1]"/"arr[length(arr)]":"$2"]("url"/blob/master/"arr[length(arr) - 1]"/"arr[length(arr)]"#L"$2") - "substr($4,2)}' url="$github_url" >> "${output}"
-	printf "TODOs can be found in ${output}\n"
-fi
+	if [[ ! -z "${output}" ]]; then
+		output="${directory}/${output}"
+	else
+		output="${directory}/TODO.md"
+	fi
+
+	if ! grep -nr "@TODO:" ${directory} &>/dev/null; then
+		printf 'No results found\n'
+		exit 1
+	else
+		rm -rf "${output}"
+		echo "# TODO" > "${output}"
+		echo >> "${output}"
+		# grep -v grep excludes this line from being included (http://superuser.com/a/409658)
+		github_url="$(git remote show -n origin | grep 'Fetch URL' | awk -F: '{print $2 ":" substr($3, 0, length($3)-4) }')"
+		grep -nr "@TODO:" ${directory} | grep -v grep | awk -F: 'path=split($1,arr,"/") ( length($4) > 0 ) {print "- [ ] ["arr[length(arr) - 1]"/"arr[length(arr)]":"$2"]("url"/blob/master/"arr[length(arr) - 1]"/"arr[length(arr)]"#L"$2") - "substr($4,2)}' url="$github_url" >> "${output}"
+		printf "TODOs can be found in ${output}\n"
+	fi
+}
+
+_find-todos "$@"

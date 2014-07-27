@@ -25,21 +25,21 @@ url = ARGV[0]
 code = ARGV[1]
 
 if url !~ /^(https?:\/\/)?(gist\.)?github.com/
-    abort "⊘ Error: Github.com URLs only"
+	abort "⊘ Error: Github.com URLs only"
 end
 
 if url !~ /^http/
-    url = "https://#{url}"
+	url = "https://#{url}"
 end
 
 if code
-    code = "-F code=#{code}"
+	code = "-F code=#{code}"
 end
 
 output = `curl -i http://git.io -F 'url=#{url}' #{code} 2> /dev/null`
 if output =~ /Location: (.+)\n?/
-    puts $1
-    `echo #$1 | pbcopy`
+	puts $1
+	`echo #$1 | pbcopy`
 else
-    puts output
+	puts output
 end

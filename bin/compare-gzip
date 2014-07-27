@@ -13,14 +13,43 @@
 #   @param   file    required
 #
 # Usage:
-#   `compare-zip filename.txt`
+#   `compare-gzip filename.txt`
 
-# (wc -c) count the bytes of passed in file, pass to stdout
-orig=$(wc -c < "$1")
-# (gzip -c) pass gzipped file to stdout, pipe output to byte count
-gzip=$(gzip -c "$1" | wc -c)
-# evaluate the expression
-ratio=$(expr $gzip \* 100 / $orig)
+_compare-gzip() {
+	local usage="$(basename $0): usage: $(basename $0) [-h|--help] $(tput smul)file$(tput rmul)"
+	local opt
+	local file="$1"
 
-printf "orig: %d bytes\n" "${orig}"
-printf "gzip: %d bytes (%2.2f%%)\n" "${gzip}" "${ratio}"
+	# Test for known flags
+	for opt in $@
+	do
+		case $opt in
+			-h|--help)
+				printf "%s\n" "${usage}"
+				exit
+				;;
+			# test for an invalid flag, exit if not a valid flag
+			-*|--*)
+				printf "%s: usage: %s: invalid option\n%s\n" "$(basename "$0")" "$opt"
+				exit 1
+				;;
+		esac
+	done
+
+	if [[ ! "${file}" ]]; then 
+		printf "bash: %s: No such file\n" "$(basename "$0")"
+		exit 1; 
+	fi
+
+	# (wc -c) count the bytes of passed in file, pass to stdout
+	local orig=$(wc -c < "$1")
+	# (gzip -c) pass gzipped file to stdout, pipe output to byte count
+	local gzip=$(gzip -c "$1" | wc -c)
+	# evaluate the expression
+	local ratio=$(expr $gzip \* 100 / $orig)
+
+	printf "orig: %d bytes\n" "${orig}"
+	printf "gzip: %d bytes (%2.2f%%)\n" "${gzip}" "${ratio}"
+}
+
+_compare-gzip "$@"

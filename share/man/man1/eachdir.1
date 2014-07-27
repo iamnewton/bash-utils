@@ -1,0 +1,47 @@
+.\" Process this file with
+.\" groff -man -Tascii cdl.1
+.\"
+.TH EACHDIR 1 "JULY 2014" Unix "User Manuals"
+.SH NAME
+eachdir \- run one or more commands in one or more directories
+.SH SYNOPSIS
+eachdir
+.RI "[" "dir" "]" 
+.RI "command"
+.SH DESCRIPTION
+By default, all subdirs of the current dir will be iterated over, but if --
+is specified as an arg, the dirs list will be made up of all args specified
+before it. All remaining args are the command(s) to be executed for each dir.
+
+Multiple commands must be specified as a single string argument.
+
+In bash, aliasing like this allows you to specify aliases/functions:
+
+.RS 4
+alias eachdir=". eachdir"
+.RE
+.SH EXAMPLES
+Both of these print the working directory of every subdir of the current dir:
+
+.RS 4
+eachdir pwd
+
+eachdir * -- pwd
+
+.RE
+Perform a "git pull" inside all subdirs starting with repo-:
+
+.RS 4
+eachdir repo-* -- git pull
+
+.RE
+Perform a few git-related commands inside all subdirs starting with repo-:
+
+.RS 4
+eachdir repo-* -- 'git fetch && git merge'
+
+.RE
+.SH REPORTING BUGS
+Report bugs to the Github Repo <https://github.com/chrisopedia/bash-utils/issues>
+.SH AUTHOR
+Newton <https://twitter.com/chrisOHpedia>

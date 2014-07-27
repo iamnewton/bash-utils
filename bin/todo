@@ -5,6 +5,7 @@
 #
 # Description:
 #   Creates something for me to do
+#   Run our new web 2.0 todo list application and raise millions of VC dollars.
 #
 # Dependencies:
 #   None
@@ -15,7 +16,9 @@
 # Usage:
 #   `todo task1`
 
-set -e
+_todo() {
+	set -e
+	touch "${HOME}/Desktop/$*"
+}
 
-# Run our new web 2.0 todo list application and raise millions of VC dollars.
-touch "${HOME}/Desktop/$*"
+_todo "$@"

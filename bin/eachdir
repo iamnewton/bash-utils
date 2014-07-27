@@ -6,47 +6,33 @@
 # Description:
 #   Run one or more commands in one or more directories
 #
-# Dependencies:
-#   None
-#
-# Configuration:
-#   @param   dir[s]  required
-#
 # Usage:
-#   `compare-zip filename.txt`
+#   `eachdir pwd`
 
-function _eachdir() {
+_eachdir() {
+	local usage="$(basename $0): usage: $(basename $0) [$(tput smul)dirs --$(tput rmul)] commands"
+	local opt
+	local directory="$1"
 
-	if [[ "$1" == "-h" || "$1" == "--help" ]]; then cat <<HELP
-	Usage: eachdir [dirs --] commands
+	# Test for known flags
+	for opt in $@
+	do
+		case $opt in
+			-h|--help)
+				printf "%s\n" "${usage}"
+				exit
+				;;
+			# test for an invalid flag, exit if not a valid flag
+			-*|--*)
+				printf "%s: usage: %s: invalid option\n%s\n" "$(basename "$0")" "$opt" "${usage}"
+				exit 1
+				;;
+		esac
+	done
 
-	Run one or more commands in one or more dirs.
-
-	By default, all subdirs of the current dir will be iterated over, but if --
-	is specified as an arg, the dirs list will be made up of all args specified
-	before it. All remaining args are the command(s) to be executed for each dir.
-
-	Multiple commands must be specified as a single string argument.
-
-	In bash, aliasing like this allows you to specify aliases/functions:
-		alias eachdir=". eachdir"
-
-	Both of these print the working directory of every subdir of the current dir:
-		eachdir pwd
-		eachdir * -- pwd
-
-	Perform a "git pull" inside all subdirs starting with repo-:
-		eachdir repo-* -- git pull
-
-	Perform a few git-related commands inside all subdirs starting with repo-:
-		eachdir repo-* -- 'git fetch && git merge'
-HELP
-		return; 
-	fi
-
-	if [ ! "$1" ]; then
-	  echo 'You must specify one or more commands to run.'
-	  return 1
+	if [[ ! "${directory}" ]]; then 
+		printf "bash: %s: No command specified\n" "$(basename "$0")"
+		exit 1; 
 	fi
 
 	# For underlining headers.
@@ -57,12 +43,12 @@ HELP
 	local dashes d
 	local dirs=()
 	for d in "$@"; do
-	  if [[ "$d" == "--" ]]; then
-		dashes=1
-		shift $(( ${#dirs[@]} + 1 ))
-		break
-	  fi
-	  dirs=("${dirs[@]}" "$d")
+		if [[ "$d" == "--" ]]; then
+			dashes=1
+			shift $(( ${#dirs[@]} + 1 ))
+			break
+		fi
+		dirs=("${dirs[@]}" "$d")
 	done
 
 	# If -- wasn't specified, default to all subdirs of the current dir.
@@ -71,27 +57,26 @@ HELP
 	local nops=()
 	# Do stuff for each specified dir, in each dir. Non-dirs are ignored.
 	for d in "${dirs[@]}"; do
-	  # Skip non-dirs.
-	  [[ ! -d "$d" ]] && continue
-	  # If the dir isn't /, strip the trailing /.
-	  [[ "$d" != "/" ]] && d="${d%/}"
-	  # Execute the command, grabbing all stdout and stderr.
-	  output="$( (cd "$d"; eval "$@") 2>&1 )"
-	  if [[ "$output" ]]; then
-		# If the command had output, display a header and that output.
-		echo -e "${h1}${d}${h2}\n$output\n"
-	  else
-		# Otherwise push it onto an array for later display.
-		nops=("${nops[@]}" "$d")
-	  fi
+		# Skip non-dirs.
+		[[ ! -d "$d" ]] && continue
+		# If the dir isn't /, strip the trailing /.
+		[[ "$d" != "/" ]] && d="${d%/}"
+		# Execute the command, grabbing all stdout and stderr.
+		output="$( (cd "$d"; eval "$@") 2>&1 )"
+		if [[ "$output" ]]; then
+			# If the command had output, display a header and that output.
+			echo -e "${h1}${d}${h2}\n$output\n"
+		else
+			# Otherwise push it onto an array for later display.
+			nops=("${nops[@]}" "$d")
+		fi
 	done
 
 	# List any dirs that had no output.
 	if [[ ${#nops[@]} > 0 ]]; then
-	  echo "${h1}no output from${h2}"
-	  for d in "${nops[@]}"; do echo "$d"; done
+		echo "${h1}no output from${h2}"
+		for d in "${nops[@]}"; do echo "$d"; done
 	fi
-
 }
 
 # By putting the above code inside a function, if this file is sourced (which

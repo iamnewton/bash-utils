@@ -1,0 +1,70 @@
+#!/usr/bin/env bash
+#
+# Author:
+#   Miscellaneous 
+#
+# Description:
+#   Create a .tar.gz archive, using `zopfli`, `pigz` or `gzip` for compression
+#
+# Dependencies:
+#   None
+#
+# Usage:
+#   tar boom
+
+_targz() {
+	local usage="$(basename $0): usage: $(basename $0) [-h|--help] $(tput smul)file$(tput rmul)"
+	local opt
+	local file="$1"
+
+	# Test for known flags
+	for opt in $@
+	do
+		case $opt in
+			-h|--help)
+				printf "%s\n" "${usage}"
+				exit
+				;;
+			# test for an invalid flag, exit if not a valid flag
+			-*|--*)
+				printf "%s: usage: %s: invalid option\n%s\n" "$(basename "$0")" "$opt" "${usage}"
+				exit 1
+				;;
+		esac
+	done
+
+	if [[ ! "${file}" ]]; then 
+		printf "bash: %s: No file specified\n" "$(basename "$0")"
+		exit 1; 
+	fi
+
+	if [[ ! -f "${file}" ]]; then 
+		printf "bash: %s: No such file\n" "$(basename "$0")"
+		exit 1; 
+	fi
+
+	local tmpFile="${@%/}.tar"
+	tar -cvf "${tmpFile}" --exclude=".DS_Store" "${@}" || return 1
+
+	local size=$(
+		stat -f"%z" "${tmpFile}" 2> /dev/null; # OS X `stat`
+		stat -c"%s" "${tmpFile}" 2> /dev/null # GNU `stat`
+	)
+
+	local cmd=""
+	if (( size < 52428800 )) && hash zopfli 2> /dev/null; then
+		# the .tar file is smaller than 50 MB and Zopfli is available; use it
+		cmd="zopfli"
+	else
+		if hash pigz 2> /dev/null; then
+			cmd="pigz"
+		else
+			cmd="gzip"
+		fi
+	fi
+
+	"${cmd}" -v "${tmpFile}" || return 1
+	[ -f "${tmpFile}" ] && rm "${tmpFile}"
+}
+
+_targz "$@"

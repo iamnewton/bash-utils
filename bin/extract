@@ -1,6 +1,5 @@
 #!/usr/bin/env bash
 #
-#
 # Author:
 #   Brett Terpstra (@ttscoff)
 #   https://github.com/ttscoff/dotfiles/blob/master/.bash_profile
@@ -8,14 +7,30 @@
 # Description:
 #   Unarchive various compression formats based on extension
 #
-# Dependencies:
-#   None
-#
 # Usage:
 #   `extract foo.tar.bz2`
-usage="$(basename $0): usage: $(basename $0) <$(tput smul)file$(tput rmul)>"
 
-extract () { 
+
+_extract() { 
+	local usage="$(basename $0): usage: $(basename $0) [-h|--help] $(tput smul)file$(tput rmul)"
+	local opt
+
+	# Test for known flags
+	for opt in $@
+	do
+		case $opt in
+			-h|--help)
+				printf "%s\n" "${usage}"
+				exit
+				;;
+			# test for an invalid flag, exit if not a valid flag
+			-*|--*)
+				printf "%s: usage: %s: invalid option\n%s\n" "$(basename "$0")" "$opt" "${usage}"
+				exit 1
+				;;
+		esac
+	done
+
 	if test -f $1 &>/dev/null; then
 		case $1 in
 			*.tar.bz2)  tar xjf $1        ;;
@@ -30,12 +45,14 @@ extract () {
 			*.Z)        uncompress $1     ;;
 			*.dmg)      hdiutil mount $1  ;;
 			*)
-				printf 'bash: %s: %s: cannot be extracted via extract()\n' "$(basename "$0")" "$1"
+				printf 'bash: %s: %s: cannot be extracted\n' "$(basename "$0")" "$1"
 				exit 1
 				;;
 		esac
 	else
-		printf 'bash: %s: %s: is not a valid file\n' "$(basename "$0")" "$1"
+		printf 'bash: %s: %s: No such file\n' "$(basename "$0")" "$1"
 		exit 1
 	fi
 }
+
+_extract "$@"

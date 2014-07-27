@@ -22,18 +22,23 @@
 # Usage:
 #   `draw-ruler`
 
-str="${1:-x...·.....}";
+_draw-ruler() {
+	local str="${1:-x...·.....}";
+	local num_columns="$(tput cols)";
+	local curr_column=1;
+	local char
 
-num_columns="$(tput cols)";
-curr_column=1;
-while [ $curr_column -le $num_columns ]; do
-	char="${str:$(((curr_column - 1) % ${#str})):1}";
-	if [ "$char" = 'x' ]; then
-		echo -n "$curr_column";
-		let curr_column+=${#curr_column};
-	else
-		echo -n "$char";
-		let curr_column++;
-	fi;
-done;
-echo;
+	while [ $curr_column -le $num_columns ]; do
+		char="${str:$(((curr_column - 1) % ${#str})):1}";
+		if [ "$char" = 'x' ]; then
+			echo -n "$curr_column";
+			let curr_column+=${#curr_column};
+		else
+			echo -n "$char";
+			let curr_column++;
+		fi;
+	done;
+	echo;
+}
+
+_draw-ruler

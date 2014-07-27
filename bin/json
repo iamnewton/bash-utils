@@ -1,0 +1,58 @@
+#!/usr/bin/env bash
+#
+# Author(s):
+#   Unknown
+#
+# Description:
+#   Syntax-highlight JSON strings or files
+#
+# Dependencies:
+#   pygments
+#
+# Configuration:
+#   @param    blob    required
+#
+# Usage:
+#   `json '{"foo":42}'` or `echo '{"foo":42}' | json`
+
+
+_json() {
+	if ! type -P 'pygmentize' &> /dev/null; then
+		printf "%s⊘ Error:%s pygmentize is required to run %s. (http://betterthangrep.com)\n" "$(tput setaf 1)" "$(tput sgr0)" "$(basename $0)"
+		printf "Aborting!\n"
+		exit
+	fi
+
+	local usage="$(basename $0): usage: $(basename $0) [-h|--help] $(tput smul)blob$(tput rmul)"
+	local opt
+	local blob="$*"
+
+	# Test for known flags
+	for opt in $@
+	do
+		case $opt in
+			-h|--help)
+				printf "%s\n" "${usage}"
+				exit
+				;;
+			# test for an invalid flag, exit if not a valid flag
+			-*|--*)
+				printf "%s: usage: %s: invalid option\n%s\n" "$(basename "$0")" "$opt" "${usage}"
+				exit 1
+				;;
+		esac
+	done
+
+	if [[ ! "${blob}" ]]; then 
+		printf "bash: %s: No pattern specified\n" "$(basename "$0")"
+		exit 1; 
+	fi
+
+	if [ -t 0 ]; then # argument
+		python -mjson.tool <<< "${blob}" | pygmentize -l javascript
+	else # pipe
+		python -mjson.tool | pygmentize -l javascript
+	fi
+}
+
+_json "$@"

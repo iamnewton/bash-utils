@@ -2,7 +2,7 @@
 
 Just a lot of bash functions and scripts I've created and collected over the years.
 
-[![Version 1.3.0](http://img.shields.io/badge/version-1.3.0-brightgreen.svg)](https://github.com/chrisopedia/bash/releases/tag/1.3.0) [![Stories in Ready](https://badge.waffle.io/chrisopedia/bash-utils.png?label=Ready)](http://waffle.io/chrisopedia/bash-utils)
+[![Version 2.0.0](http://img.shields.io/badge/version-2.0.0-brightgreen.svg)](https://github.com/chrisopedia/bash/releases/tag/2.0.0) [![Stories in Ready](https://badge.waffle.io/chrisopedia/bash-utils.png?label=Ready)](http://waffle.io/chrisopedia/bash-utils)
 
 ## Requirements
 
@@ -24,33 +24,29 @@ $ bash -c "$(curl -#fL raw.github.com/chrisopedia/bash-utils/go/install)"
 * colors - Constants and functions for terminal colors
 * `compare-gzip` - Compare original and gzipped file size
 * `css-stats` - Generates CSS stats
-* `datauri` - Create a data URI from a file and copy it to the pasteboard
 * `draw-ruler` - Draw a ruler across the screen
 * `eachdir` - Run one or more commands in one or more directories
 * `extract` - Unarchive various compression formats based on extension
 * `favicon` - Favicon and Apple Touch Icon Generator
 * `find-todos` - Finds all the @TODOs in a specified directory
 * `fpo` - Grabs random placholder images from hhhhold.com and downloads images
-* `git-clean-branches` - Remove all local branches that have been merged into master
-* `git-hublog` - Git log with per-commit cmd-clickable GitHub URLs (iTerm)
-* `git-pr` - Github pull request helper
-* `git-rank-contributors` - Script to trace through the logs and rank contributors
-* `git-updateall` - Runs `git pull` on every directory within the current directory
-* `git-wtf` - Displays the state of your repository in a readable, easy-to-scan format
+* `fs` - Determine size of a file or total size of a directory
+* `get-cert-names` - Show all the names (CNs and SANs) listed in the SSL certificate for a given domain
 * `gitio` - Turns a github.com URL into a git.io URL
 * `httpcompression` - Test if HTTP compression (RFC 2616 + SDCH) is enabled for a given URL
 * `ie-vm` - Download the Virtual Box images for IE VMs
-* `image` - Print out image dimensions
+* `json` - Syntax-highlight JSON strings or files
 * `lint` - Allows you to check your html, css or js
 * `makefile` - Creates a Makefile for encrypting passwords/sensitive data in repos
 * miscellaneous - Various helper scripts
-* `osx-create-installer` - Create an OS X "USB Install Stick" from InstallESD.dmg
 * `pid` - Get the PIDs of all matching processes for all specified processnames.
-* `resample-dpi` - Resample specified images to 72 DPI
+* `rgb-to-xterm` - Convert values between RGB hex codes and xterm-256 color codes.
 * `server` - Start an HTTP server from a directory, optionally specifying the port
-* `ssid` - Print out current WiFi network's SSID
 * `todo` - Creates a todo item on Desktop
+* `targz` - Create a .tar.gz archive, using `zopfli`, `pigz` or `gzip` for compression
 * `today` - Creates/updates Today's todo list
+* `todo` - Creates something for me to do
+* `update-ctags` - Updates ctags
 
 ## Acknowledgements
 
