@@ -1,0 +1,63 @@
+#!/usr/bin/env bash
+#
+# Author:
+#   Unknown 
+#
+# Description:
+#   Show all the names (CNs and SANs) listed in the SSL certificate
+#   for a given domain
+#
+# Dependencies:
+#   None
+
+_get-cert-names() {
+	local usage="$(basename $0): usage: $(basename $0) $(tput smul)domain$(tput rmul)"
+	local opt
+
+	# Test for known flags
+	for opt in $@
+	do
+		case $opt in
+			-h|--help)
+				printf "%s\n" "${usage}"
+				exit
+				;;
+			# test for an invalid flag, exit if not a valid flag
+			-*|--*)
+				printf "%s: usage: %s: invalid option\n%s\n" "$(basename "$0")" "$opt" "${usage}"
+				exit 1
+				;;
+		esac
+	done
+
+	if [ -z "${1}" ]; then
+		printf "bash: %s: No domain specified\n" "$(basename "$0")"
+		return 1
+	fi
+
+	local domain="${1}"
+	printf "%s┃ Processing:%s Testing %s\n" "$(tput setaf 6)" "$(tput sgr0)" "${domain}"
+
+	local tmp=$(echo -e "GET / HTTP/1.0\nEOT" \
+		| openssl s_client -connect "${domain}:443" 2>&1);
+
+	if [[ "${tmp}" = *"-----BEGIN CERTIFICATE-----"* ]]; then
+		local certText=$(echo "${tmp}" \
+			| openssl x509 -text -certopt "no_header, no_serial, no_version, \
+			no_signame, no_validity, no_issuer, no_pubkey, no_sigdump, no_aux");
+			echo "Common Name:"
+			echo # newline
+			echo "${certText}" | grep "Subject:" | sed -e "s/^.*CN=//";
+			echo # newline
+			echo "Subject Alternative Name(s):"
+			echo # newline
+			echo "${certText}" | grep -A 1 "Subject Alternative Name:" \
+				| sed -e "2s/DNS://g" -e "s/ //g" | tr "," "\n" | tail -n +2
+			return 0
+	else
+		printf "%s⊘ Error:%s Certificate not found. Aborting\n" "$(tput setaf 1)" "$(tput sgr0)"
+		return 1
+	fi
+}
+
+_get-cert-names "$1"

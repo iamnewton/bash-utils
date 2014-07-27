@@ -13,21 +13,37 @@
 # Usage:
 #   `pid [processname]`
 
-usage="$(basename "$0"): usage: $(basename "$0") [processname [processname ...]]"
+_pid() {
+	local usage="$(basename "$0"): usage: $(basename "$0") [processname [processname ...]]"
+	local args arg opt
 
-if [[ "$1" == "-h" || "$1" == "--help" ]]; then
-	printf '%s\n' "$usage"
-	exit
-fi
-
-if [ ! "$1" ]; then
-	ps axo pid,tty,user,command
-else
-	args="$1"
-	shift 
-	for arg in "$@";
-	do 
-		args="${args}|${arg}"; 
+	# Test for known flags
+	for opt in $@
+	do
+		case $opt in
+			-h|--help)
+				printf "%s\n" "${usage}"
+				exit
+				;;
+			# test for an invalid flag, exit if not a valid flag
+			-*|--*)
+				printf "%s: usage: %s: invalid option\n%s\n" "$(basename "$0")" "$opt" "${usage}"
+				exit 1
+				;;
+		esac
 	done
-	echo $(ps axo pid,tty,user,command | perl -nle"m#^\s*(\d+).*(?:$args)# && !m#.dotfiles/bin/pid# && print \$1")
-fi
+
+	if [ ! "$1" ]; then
+		ps axo pid,tty,user,command
+	else
+		args="$1"
+		shift 
+		for arg in "$@";
+		do 
+			args="${args}|${arg}"; 
+		done
+		echo $(ps axo pid,tty,user,command | perl -nle"m#^\s*(\d+).*(?:$args)# && !m#.dotfiles/bin/pid# && print \$1")
+	fi
+}
+
+_pid "$@"

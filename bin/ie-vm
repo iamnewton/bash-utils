@@ -16,32 +16,60 @@
 # Usage:
 #   `ie-vm 8`
 
-ie-vm() {
-	local usage="$(basename "$0"): usage: $(basename "$0") [8|9|10|11]"
-	local baseUrl="https://az412801.vo.msecnd.net/vhd/IEKitV1_Final/VirtualBox/OSX/"
+_ie-vm() {
+	local usage="$(basename "$0"): usage: $(basename "$0") [8|9|10|11] $(tput smul)dir$(tput rmul)"
+	local opt
+	local index="$1"
+	local directory="$2"
+	local baseUrl="https://www.modern.ie/vmdownload?platform=mac&virtPlatform=virtualbox&browserOS="
 	declare -A versions=( 
 		# IE8 XP
-		["8"]="IE8_XP/IE8.XP.For.MacVirtualBox.ova"
+		[8]="IE8-WinXP&parts=2&filename=VMBuild_20131127/VirtualBox/IE8_WinXP/Mac/IE8.WinXP.For.MacVirtualBox.part{1.sfx,2.rar}"
 		# IE9 Win7
-		["9"]="IE9_Win7/IE9.Win7.For.MacVirtualBox.part{1.sfx,2.rar,3.rar,4.rar,5.rar}"
+		[9]="IE9-Win7&parts=4&filename=VMBuild_20131127/VirtualBox/IE9_Win7/Mac/IE9.Win7.For.MacVirtualBox.part{1.sfx,2.rar,3.rar,4.rar}"
 		# IE10 Win8
-		["10"]="IE10_Win8/IE10.Win8.For.MacVirtualBox.part{1.sfx,2.rar,3.rar}"
+		[10]="IE10-Win8.1&parts=5&filename=VMBuild_20131127/VirtualBox/IE10_Win8/Mac/IE10.Win8.For.MacVirtualBox.part{1.sfx,2.rar,3.rar,4.rar,5.rar}"
 		# IE11 Win8.1
-		["11"]="IE11_Win8.1/IE11.Win8.1.For.MacVirtualBox.part{1.sfx,2.rar,3.rar}"
+		[11]="IE11-Win8.1&parts=4&filename=VMBuild_20140402/VirtualBox/IE11_Win8.1/Mac/IE11.Win8.1.For.MacVirtualBox.part{1.sfx,2.rar,3.rar,4.rar}"
 	)
+	local path="${versions[${index}]}"
+	local url="${baseUrl}${path}"
 
 	# Test for known flags
 	for opt in $@
 	do
 		case $opt in
+			-h|--help)
+				printf "%s\n" "${usage}"
+				exit
+				;;
 			# test for an invalid flag, exit if not a valid flag
 			-*|--*)
-				printf '%sbash: %s: %s: Invalid option\n' "-" "$(basename "$0")" "$opt" >&2
-				printf '%s\n' "$usage"
+				printf "%s: usage: %s: invalid option\n%s\n" "$(basename "$0")" "$opt" "${usage}"
 				exit 1
 				;;
 		esac
 	done
 
-	curl -O "$baseUrl/$version[$1]"
+	if [[ ! "${index}" ]]; then 
+		printf "bash: %s: No version specified\n" "$(basename "$0")"
+		exit 1; 
+	fi
+
+	[ ! ${versions[${index}]+abc} ] && printf "%s: usage: invalid version\n" "$(basename "$0")" && exit 1
+
+	if [[ ! "${directory}" ]]; then 
+		printf "bash: %s: No directory specified\n" "$(basename "$0")"
+		exit 1; 
+	fi
+
+	if [[ ! -d "${directory}" ]]; then 
+		printf "bash: %s: No such directory\n" "$(basename "$0")"
+		exit 1; 
+	fi
+
+	curl -O -L "${url}"
+	find . -type f -name "IE${index}*" -print | ( read file; mv "$file" "${directory}/$file" )
 }
+
+_ie-vm "$@"

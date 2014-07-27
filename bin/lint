@@ -19,13 +19,53 @@
 #   `lint html app/index.html`
 #   `lint js app/scripts.js`
 
-if [[ $1 == "html" ]]; then
-	htmlinspector "$2"
-elif [[ $1 == "css" ]]; then
-	csslint "$2"
-elif [[ $1 == "js" ]]; then
-	jslint "$2"
-else 
-	printf 'bash: %s: %s: Invalid option\n' "$(basename "$0")" "$1"
-	printf "%s: usage: %s [[-c|--css]| [-h|--html]| [-j|--javascript]] %sfile%s\n" "$(basename $0)" "$(basename $0)" "$(tput smul)" "$(tput rmul)"
-fi
+_lint() {
+	local usage="$(basename "$0"): usage: $(basename "$0") [[-c|--css]| [-h|--html]| [-j|--javascript]] $(tput smul)file$(tput rmul)"
+
+	# Test for known flags
+	for opt in $@
+	do
+		case $opt in
+			-h|--help)
+				printf "%s\n" "${usage}"
+				exit
+				;;
+			# test for an invalid flag, exit if not a valid flag
+			-*|--*)
+				printf "%s: usage: %s: invalid option\n%s\n" "$(basename "$0")" "$opt" "${usage}"
+				exit 1
+				;;
+		esac
+	done
+
+	if [[ $1 == "html" ]]; then
+		if ! type -P 'htmlinspector' &> /dev/null; then
+			printf "%s⊘ Error:%s htmlinspector is required to run %s\n" "$(tput setaf 1)" "$(tput sgr0)" "$(basename $0)"
+			printf "Aborting!\n"
+			exit
+		else
+			htmlinspector "$2"
+		fi
+	elif [[ $1 == "css" ]]; then
+		if ! type -P 'csslint' &> /dev/null; then
+			printf "%s⊘ Error:%s csslint is required to run %s\n" "$(tput setaf 1)" "$(tput sgr0)" "$(basename $0)"
+			printf "Aborting!\n"
+			exit
+		else
+			csslint "$2"
+		fi
+	elif [[ $1 == "js" ]]; then
+		if ! type -P 'jslint' &> /dev/null; then
+			printf "%s⊘ Error:%s jslint is required to run %s\n" "$(tput setaf 1)" "$(tput sgr0)" "$(basename $0)"
+			printf "Aborting!\n"
+			exit
+		else
+			jslint "$2"
+		fi
+	else 
+		printf '%s: usage: %s: invalid option\n%s\n' "$(basename "$0")" "$1" "${usage}"
+		exit 2
+	fi
+}
+
+_lint "$@"

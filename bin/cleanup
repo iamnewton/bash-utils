@@ -15,9 +15,38 @@
 # Usage:
 #   `cleanup filename.txt`
 
-# (find .) Find within the current directory
-# (-type f) match anything with the type of regular file
-# (-name "${1}") last component of the pathname matches argument
-# (-ls) printout the standard output of matched files
-# (-delete) delete the matched files
-find . -type f -name "${1}" -ls -delete
+_cleanup() {
+	local usage="$(basename $0): usage: $(basename $0) [-h|--help] $(tput smul)pattern$(tput rmul)"
+	local opt
+	local pattern="$1"
+
+	# Test for known flags
+	for opt in $@
+	do
+		case $opt in
+			-h|--help)
+				printf "%s\n" "${usage}"
+				exit
+				;;
+			# test for an invalid flag, exit if not a valid flag
+			-*|--*)
+				printf "%s: usage: %s: invalid option\n%s\n" "$(basename "$0")" "$opt" "${usage}"
+				exit 1
+				;;
+		esac
+	done
+
+	if [[ ! "${pattern}" ]]; then 
+		printf "bash: %s: No pattern specified\n" "$(basename "$0")"
+		exit 1; 
+	fi
+
+	# (find .) Find within the current directory
+	# (-type f) match anything with the type of regular file
+	# (-name "${1}") last component of the pathname matches argument
+	# (-ls) printout the standard output of matched files
+	# (-delete) delete the matched files
+	find . -type f -name "${pattern}" -ls -delete
+}
+
+_cleanup "$@"

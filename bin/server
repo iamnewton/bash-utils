@@ -18,11 +18,40 @@
 #   `create-server [php | [py|python]]`
 #
 
-# Start an HTTP server from a directory, optionally specifying the port
-create-server() {
-	if [[ $1 == 'py' ]] || [[ $1 == 'python' ]]; then
+_create-server() {
+	local usage="$(basename $0): usage: $(basename $0) [-h|--help] [$(tput smul)php | [py|python]$(tput rmul)]"
+	local opt port ip
+	local type="$1"
+
+	# Test for known flags
+	for opt in $@
+	do
+		case $opt in
+			-h|--help)
+				printf "%s\n" "${usage}"
+				exit
+				;;
+			# test for an invalid flag, exit if not a valid flag
+			-*|--*)
+				printf "%s: usage: %s: invalid option\n%s\n" "$(basename "$0")" "$opt" "${usage}"
+				exit 1
+				;;
+		esac
+	done
+
+	if [[ ! "${type}" ]]; then 
+		printf "bash: %s: No type specified\n" "$(basename "$0")"
+		exit 1; 
+	fi
+
+	if [[ "${type}" != 'php' ]] && [[ ${type} != 'py' || ${type} != 'python' ]] && [[ ${type} != 'jekyll' ]]; then
+		printf "%s: %s: Not a valid server type\n" "$(basename "$0")" "${type}"
+		exit 1; 
+	fi
+
+	if [[ ${type} == 'py' ]] || [[ ${type} == 'python' ]]; then
 		# Get port (if specified)
-		local port="${1:-8000}"
+		port="8000"
 
 		# Open in the browser
 		open "http://localhost:${port}/"
@@ -37,11 +66,22 @@ create-server() {
 		python -c $'import SimpleHTTPServer;\nSimpleHTTPServer.SimpleHTTPRequestHandler.extensions_map[""] = "text/plain";\nSimpleHTTPServer.test();' "$port"
 	fi
 
-	if [[ $1 == 'php' ]]; then
+	if [[ ${type} == 'php' ]]; then
 		# Start a PHP server from a directory, optionally specifying the port
-		local port="${1:-4000}"
-		local ip=$(ipconfig getifaddr en1)
+		port="4000"
+		ip=$(ipconfig getifaddr en0)
 		sleep 1 && open "http://${ip}:${port}/" &
 		php -S "${ip}:${port}"
 	fi
+
+	if [[ ${type} == 'jekyll' ]]; then
+		if ! type -P 'bundle' &> /dev/null; then
+			printf "%s⊘ Error:%s jekyll is required to run %s\n" "$(tput setaf 1)" "$(tput sgr0)" "$(basename $0)"
+			printf "Aborting!\n"
+		else
+			bundle exec jekyll serve --watch
+		fi
+	fi
 }
+
+_create-server "$@"

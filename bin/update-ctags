@@ -1,0 +1,76 @@
+#!/usr/bin/env bash
+#
+# Author:
+#   Newton (@chrisopedia)
+#
+# Description:
+#   Updates ctags
+#
+# Dependencies:
+#   ctags
+#
+# Usage:
+#   `update-ctags` => update ctags on all directories in code base, read from conf
+#   `update -c sample-foo` => update ctags on sample/ directory
+
+_update-ctags() {
+	if ! type -P 'ctags' &> /dev/null; then
+		printf "%s⊘ Error:%s ctags is required to run %s\n" "$(tput setaf 1)" "$(tput sgr0)" "$(basename $0)"
+		printf "Aborting!\n"
+		exit
+	fi
+
+	local usage="$(basename $0): usage: $(basename $0) [-h|--help] $(tput smul)dir$(tput rmul)"
+	local opt all
+	local directory="$1"
+
+	# Test for known flags
+	for opt in $@
+	do
+		case $opt in
+			-h|--help)
+				printf "%s\n" "${usage}"
+				exit
+				;;
+			-a|--all)
+				all=true
+			# test for an invalid flag, exit if not a valid flag
+			-*|--*)
+				printf "%s: usage: %s: invalid option\n%s\n" "$(basename "$0")" "$opt" "${usage}"
+				exit 1
+				;;
+		esac
+	done
+
+	# Check for environment variable for directory, otherwise set error out
+	if [[ $all ]]; then
+		local i
+		if [[ ! -z "${CODE_DIRECTORY}" ]]; then
+			directory="${CODE_DIRECTORY}"
+		else
+			printf 'bash: %s: %s: No configuration found\n' "$(basename "$0")" "$1"
+			printf '%s\n' "$usage"
+			exit 1
+		fi
+		# loop through all directories
+		for i in "${directory}/*"
+		do
+			ctags -R -f "$i/.git/tags" $i
+		done
+		return
+	else
+		# Check if directory was passed in, otherwise use current working directory
+		if [[ -z "${directory}" ]]; then
+			directory="$PWD"
+		fi
+
+		if [[ ! -d "${directory}" ]]; then
+			printf 'bash: %s: %s: No such directory\n' "$(basename "$0")" "$directory"
+			printf '%s\n' "$usage"
+			exit 2
+		fi
+		ctags -R -f "${directory}/.git/tags" ${directory}
+	fi
+}
+
+_update-ctags "$@"

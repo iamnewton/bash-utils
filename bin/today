@@ -15,44 +15,49 @@
 # Usage:
 #   `today task1`
 
-date="$(date +"%m-%d-%y")"
-if [[ ! -z "${TODAY_DIRECTORY}" ]]; then
-	dir="${TODAY_DIRECTORY}"
-else
-	dir="${HOME}/Desktop"
-fi
-file="${dir}/TODAY-${date}.md"
-usage="$(basename "$0"): usage: $(basename "$0") [-d|--delete] [-e|--export [$(tput smul)file$(tput rmul)]] [-o|--open] $(tput smul)task$(tput rmul)"
+_today() {
+	local usage="$(basename "$0"): usage: $(basename "$0") [-d|--delete] [-e|--export [$(tput smul)file$(tput rmul)]] [-o|--open] $(tput smul)task$(tput rmul)"
+	local date="$(date +"%m-%d-%y")"
+	local dir file opt
 
-# Test for known flags
-for opt in $@
-do
-	case $opt in
-		-d|--delete)
-			if [[ -f ${file} ]]; then
-				rm "${file}"
+	if [[ ! -z "${TODAY_DIRECTORY}" ]]; then
+		dir="${TODAY_DIRECTORY}"
+	else
+		dir="${HOME}/Desktop"
+	fi
+	file="${dir}/TODAY-${date}.md"
+
+	# Test for known flags
+	for opt in $@
+	do
+		case $opt in
+			-h|--help)
+				printf "%s\n" "${usage}"
 				exit
-			fi
-			;;
-		-o|--open)
-			open "${file}"
-			;;
-		-*|--*) 
-			printf 'bash: %s: %s: Invalid option\n' "$(basename "$0")" "$1"
-			printf '%s\n' "$usage"
-			exit
-			;;
-	esac
-done
+				;;
+			-d|--delete)
+				if [[ -f ${file} ]]; then
+					rm "${file}"
+					exit
+				fi
+				;;
+			-o|--open)
+				open "${file}"
+				;;
+			-*|--*) 
+				printf 'bash: %s: %s: Invalid option\n' "$(basename "$0")" "$1"
+				printf '%s\n' "$usage"
+				exit
+				;;
+		esac
+	done
 
-if [[ -z "$1" || "$1" == "-h" || "$1" == "--help" ]]; then
-	printf '%s\n' "$usage"
-	exit
-fi
+	if [[ ! -f "${file}" ]]; then
+		echo "# Today" >> ${file}
+		echo >> ${file}
+	fi
 
-if [[ ! -f "${file}" ]]; then
-	echo "# Today" >> ${file}
-	echo >> ${file}
-fi
+	echo "- [ ] ${@}" >> ${file}
+}
 
-echo "- [ ] ${@}" >> ${file}
+_today "$@"
