@@ -7,26 +7,26 @@ GITHUB_USER="chrisopedia"
 # If missing, download and extract the repository
 if [[ ! -d "${DIR}" ]]; then
 
-    # no bash directory found
-    printf "%s⚠ Warning:%s No %s found!\n" "$(tput bold ; tput setaf 3)" "$(tput sgr0)" "${DIR}"
+	# no bash directory found
+	printf "%s⚠ Warning:%s No %s found!\n" "$(tput bold ; tput setaf 3)" "$(tput sgr0)" "${DIR}"
 
-    # create directory
-    printf "%s┃%s Creating directory at %s...%s\n" "$(tput setaf 6)" "$(tput sgr0 ; tput setaf 7)" "${DIR}" "$(tput sgr0)"
-    mkdir -p "${DIR}"
+	# create directory
+	printf "%s┃%s Creating directory at %s...%s\n" "$(tput setaf 6)" "$(tput sgr0 ; tput setaf 7)" "${DIR}" "$(tput sgr0)"
+	mkdir -p "${DIR}"
 
-    # Download the repository as a tarball
-    printf "%s┃%s Downloading repository to /tmp directory...%s\n" "$(tput setaf 6)" "$(tput sgr0 ; tput setaf 7)" "$(tput sgr0)"
-    curl -#fLo /tmp/${REPO}.tar.gz "https://github.com/${GITHUB_USER}/${REPO}/tarball/master"
+	# Download the repository as a tarball
+	printf "%s┃%s Downloading repository to /tmp directory...%s\n" "$(tput setaf 6)" "$(tput sgr0 ; tput setaf 7)" "$(tput sgr0)"
+	curl -#fLo /tmp/${REPO}.tar.gz "https://github.com/${GITHUB_USER}/${REPO}/tarball/master"
 
-    # Extract to the ${REPO} directory
-    printf "%s┃%s Extracting files to %s...%s\n" "$(tput setaf 6)" "$(tput sgr0 ; tput setaf 7)" "${DIR}" "$(tput sgr0)"
-    tar -zxf /tmp/${REPO}.tar.gz --strip-components 1 -C "${DIR}"
+	# Extract to the ${REPO} directory
+	printf "%s┃%s Extracting files to %s...%s\n" "$(tput setaf 6)" "$(tput sgr0 ; tput setaf 7)" "${DIR}" "$(tput sgr0)"
+	tar -zxf /tmp/${REPO}.tar.gz --strip-components 1 -C "${DIR}"
 
-    # Remove the tarball
-    printf "%s┃%s Removing tarball from /tmp directory...%s\n" "$(tput setaf 6)" "$(tput sgr0 ; tput setaf 7)" "$(tput sgr0)"
-    rm -rf /tmp/${REPO}.tar.gz
+	# Remove the tarball
+	printf "%s┃%s Removing tarball from /tmp directory...%s\n" "$(tput setaf 6)" "$(tput sgr0 ; tput setaf 7)" "$(tput sgr0)"
+	rm -rf /tmp/${REPO}.tar.gz
 
-    printf "%s✓ Success:%s %s created, repository downloaded and extracted.\n" "$(tput setaf 2)" "$(tput sgr0)" "${DIR}"
+	printf "%s✓ Success:%s %s created, repository downloaded and extracted.\n" "$(tput setaf 2)" "$(tput sgr0)" "${DIR}"
 fi
 
 # Change to the ${REPO} directory
@@ -40,7 +40,7 @@ printf "%s┃%s Adding https://github.com/%s/%s.git as origin...%s\n" "$(tput se
 git remote add origin "https://github.com/${GITHUB_USER}/${REPO}.git"
 
 printf "%s┃%s Downloading changes from origin...%s\n" "$(tput setaf 6)" "$(tput sgr0 ; tput setaf 7)" "$(tput sgr0)"
-git fetch origin master
+git fetch --tags origin master
 
 # Reset the index and working tree to the fetched HEAD
 # (submodules are cloned in the subsequent sync step)
