@@ -1,66 +1,69 @@
 #!/usr/bin/env bash
 
-DIR="/usr/local/opt/bash-utils"
+REPO="bash-utils"
+DIR="/usr/local/opt/${REPO}"
 GITHUB_USER="chrisopedia"
 
-# If missing, download and extract the bash-utils repository
+# If missing, download and extract the repository
 if [[ ! -d "${DIR}" ]]; then
 
     # no bash directory found
-    printf "$(tput bold ; tput setaf 3)⚠ Warning: $(tput sgr0)%s!\n" "No ${DIR} found"
+    printf "%s⚠ Warning:%s No %s found!\n" "$(tput bold ; tput setaf 3)" "$(tput sgr0)" "${DIR}"
 
     # create directory
-    printf "$(tput setaf 6)┃ $(tput sgr0)$(tput setaf 7)%s...$(tput sgr0)\n" "Creating directory at ${DIR}"
+    printf "%s┃%s Creating directory at %s...\n" "$(tput setaf 6)" "$(tput sgr0 ; tput setaf 7)" "$(tput sgr0)" "${DIR}"
     mkdir -p "${DIR}"
 
     # Download the repository as a tarball
-    printf "$(tput setaf 6)┃ $(tput sgr0)$(tput setaf 7)%s...$(tput sgr0)\n" "Downloading repository to /tmp directory"
-    curl -#fLo /tmp/bash-utils.tar.gz "https://github.com/${GITHUB_USER}/bash-utils/tarball/master"
+    printf "%s┃%s Downloading repository to /tmp directory...%s\n" "$(tput setaf 6)" "$(tput sgr0 ; tput setaf 7)" "$(tput sgr0)"
+    curl -#fLo /tmp/${REPO}.tar.gz "https://github.com/${GITHUB_USER}/${REPO}/tarball/master"
 
-    # Extract to the bash-utils directory
-    printf "$(tput setaf 6)┃ $(tput sgr0)$(tput setaf 7)%s...$(tput sgr0)\n" "Extracting files to ${DIR}"
-    tar -zxf /tmp/bash-utils.tar.gz --strip-components 1 -C "${DIR}"
+    # Extract to the ${REPO} directory
+    printf "%s┃%s Extracting files to %s...\n" "$(tput setaf 6)" "$(tput sgr0 ; tput setaf 7)" "$(tput sgr0)" "${DIR}"
+    tar -zxf /tmp/${REPO}.tar.gz --strip-components 1 -C "${DIR}"
 
     # Remove the tarball
-    printf "$(tput setaf 6)┃ $(tput sgr0)$(tput setaf 7)%s...$(tput sgr0)\n" "Removing tarball from /tmp directory"
-    rm -rf /tmp/bash-utils.tar.gz
+    printf "%s┃%s Removing tarball from /tmp directory...\n" "$(tput setaf 6)" "$(tput sgr0 ; tput setaf 7)" "$(tput sgr0)"
+    rm -rf /tmp/${REPO}.tar.gz
 
-    printf "$(tput setaf 2)✓ Success: $(tput sgr0)%s.\n" "${DIR} created, repository downloaded and extracted"
+    printf "%s✓ Success:%s %s created, repository downloaded and extracted.\n" "$(tput setaf 2)" "$(tput sgr0)" "${DIR}"
 fi
 
-# Change to the bash-utils directory
+# Change to the ${REPO} directory
 cd "${DIR}"
 
 # Initialize the git repository if it's missing
-printf "$(tput setaf 6)┃ $(tput sgr0)$(tput setaf 7)%s...$(tput sgr0)\n" "Initializing git repository"
+printf "%s┃%s Initializing git repository...%s\n" "$(tput setaf 6)" "$(tput sgr0 ; tput setaf 7)" "$(tput sgr0)"
 git init
 
-printf "$(tput setaf 6)┃ $(tput sgr0)$(tput setaf 7)%s...$(tput sgr0)\n" "Adding https://github.com/${GITHUB_USER}/dotfiles.git as origin"
-git remote add origin "https://github.com/${GITHUB_USER}/dotfiles.git"
+printf "%s┃%s Adding https://github.com/%s/%s.git as origin...%s\n" "$(tput setaf 6)" "$(tput sgr0 ; tput setaf 7)" "$(tput sgr0)" "${GITHUB_USER}" "${REPO}"
+git remote add origin "https://github.com/${GITHUB_USER}/${REPO}.git"
 
-printf "$(tput setaf 6)┃ $(tput sgr0)$(tput setaf 7)%s...$(tput sgr0)\n" "Downloading changes from origin"
+printf "%s┃%s Downloading changes from origin...%s\n" "$(tput setaf 6)" "$(tput sgr0 ; tput setaf 7)" "$(tput sgr0)"
 git fetch origin master
 
 # Reset the index and working tree to the fetched HEAD
 # (submodules are cloned in the subsequent sync step)
-printf "$(tput setaf 6)┃ $(tput sgr0)$(tput setaf 7)%s...$(tput sgr0)\n" "Resetting index & working tree to fetched HEAD"
+printf "%s┃%s Resetting index & working tree to fetched HEAD...%s\n" "$(tput setaf 6)" "$(tput sgr0 ; tput setaf 7)" "$(tput sgr0)"
 git reset --hard FETCH_HEAD
 
 # Remove any untracked files
-printf "$(tput setaf 6)┃ $(tput sgr0)$(tput setaf 7)%s...$(tput sgr0)\n" "Removing any untracked files"
+printf "%s┃%s Removing any untracked files...%s\n" "$(tput setaf 6)" "$(tput sgr0 ; tput setaf 7)" "$(tput sgr0)"
 git clean -fd
 
-[[ $? ]] && printf "$(tput setaf 2)✓ Success: $(tput sgr0)%s.\n" "Repository has been initialized"
+[[ $? ]] && printf "%s✓ Success:%s Repository has been initialized.%s\n" "$(tput setaf 2)" "$(tput sgr0 ; tput setaf 7)" "$(tput sgr0)"
 
 # Pull down the latest changes
-printf "$(tput setaf 6)┃ $(tput sgr0)$(tput setaf 7)%s...$(tput sgr0)\n" "Pulling down latest changes"
+printf "%s┃%s Pulling down latest changes...%s\n" "$(tput setaf 6)" "$(tput sgr0 ; tput setaf 7)" "$(tput sgr0)"
 git pull --rebase origin master
 
 # Update submodules
-printf "$(tput setaf 6)┃ $(tput sgr0)$(tput setaf 7)%s...$(tput sgr0)\n" "Updating submodules"
+printf "%s┃%s Updating submodules...%s\n" "$(tput setaf 6)" "$(tput sgr0 ; tput setaf 7)" "$(tput sgr0)"
 git submodule update --recursive --init --quiet
 
-[[ $? ]] && printf "$(tput setaf 2)✓ Success: $(tput sgr0)%s.\n" "Repository has been updated"
+[[ $? ]] && printf "%s✓ Success:%s Repository has been updated.%s\n" "$(tput setaf 2)" "$(tput sgr0 ; tput setaf 7)" "$(tput sgr0)"
 
-printf "$(tput setaf 6)┃ $(tput sgr0)$(tput setaf 7)%s...$(tput sgr0)\n" "Symlinking ${DIR}/bin/* to /usr/local/bin/"
+printf "%s┃%s Symlinking %s/bin/* to /usr/local/bin/...%s\n" "$(tput setaf 6)" "$(tput sgr0 ; tput setaf 7)" "${DIR}" "$(tput sgr0)"
 ln -fs "${DIR}/bin/*" "/usr/local/bin/"
+
+[[ $? ]] && printf "%s✓ Success:%s %s has been installed.%s\n" "$(tput setaf 2)" "$(tput sgr0 ; tput setaf 7)" "${DIR}" "$(tput sgr0)"
