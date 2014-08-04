@@ -15,49 +15,177 @@
 # Usage:
 #   `today task1`
 
-_today() {
-	local usage="$(basename "$0"): usage: $(basename "$0") [-d|--delete] [-e|--export [$(tput smul)file$(tput rmul)]] [-o|--open] $(tput smul)task$(tput rmul)"
-	local date="$(date +"%m-%d-%y")"
-	local dir file opt
+readonly PROGNAME=$(basename $0)
+readonly PROGDIR=$(readlink $(dirname $0))
+readonly ARGS="$@"
+readonly TODAY_DATE="$(date +"%m-%d-%y")"
+if [[ ! -z "${TODAY_DIRECTORY}" ]]; then
+	readonly DIR="${TODAY_DIRECTORY}"
+else
+	readonly DIR="${HOME}/.today"
+fi
+if [[ ! -d "${DIR}" ]]; then
+	mkdir -p "${DIR}"
+fi
+readonly FILE="${DIR}/${TODAY_DATE}"
 
-	if [[ ! -z "${TODAY_DIRECTORY}" ]]; then
-		dir="${TODAY_DIRECTORY}"
+_usage() {
+	printf "%s: usage: %s [-h|--help] [-d|--delete] [-e|--export] [-l|--list [all|file]] [-o|--open]  %stask%s" "$PROGNAME" "$PROGNAME" "$(tput smul)" "$(tput rmul)"
+}
+
+is_empty() {
+	local var=$1
+	[[ -z $var ]]
+}
+
+is_not_empty() {
+	local var=$1
+	[[ -n $var ]]
+}
+
+_is_not_valid_option() {
+	local option=$1
+	printf "bash: %s: %s: invalid option\n" "$PROGNAME" "$option"
+}
+
+# usage: list 'all' => list all todo files
+# usage: list '07-24-14' => list 07-24-14 todo file (if it exists)
+# usage: list => list current today file
+_list() {
+	shift
+	local option="$1"
+
+	if [[ ! -f "${DIR}/${option}" ]]; then
+		printf "%s: No such file or directory\n" "$PROGNAME"
+		exit 3;
 	else
-		dir="${HOME}/Desktop"
-	fi
-	file="${dir}/TODAY-${date}.md"
-
-	# Test for known flags
-	for opt in $@
-	do
-		case $opt in
-			-h|--help)
-				printf "%s\n" "${usage}"
-				exit
+		case $option in
+			all) 
+				ls -1 "${DIR}"
 				;;
-			-d|--delete)
-				if [[ -f ${file} ]]; then
-					rm "${file}"
-					exit
+			*)
+				if [[ -f "${DIR}/${option}" ]]; then
+					cat "${DIR}/${option}"
+				else
+					cat "${FILE}"
 				fi
 				;;
-			-o|--open)
-				open "${file}"
+		esac
+	fi
+}
+
+_open() {
+	shift
+	local option="$1"
+
+	if [[ -f "${DIR}/${option}" ]]; then
+		open "${DIR}/${option}"
+	else
+		open "${FILE}"
+	fi
+}
+
+_delete() {
+	shift
+	local option="$1"
+
+	case $option in
+		all) 
+			rm -rf ${DIR}/*
+			;;
+		*)
+			if [[ -f "${DIR}/${option}" ]]; then
+				rm "${DIR}/${option}"
+			else
+				rm "${FILE}"
+			fi
+			;;
+	esac
+}
+
+# add file specific , all and current file functionality
+_export() {
+	shift
+	local option="${1}.md"
+	# is empty check
+	# is valid file check
+	# prepend file with text
+	# echo '# Today' | cat - ${FILE} > temp && mv temp "${FILE}.md"
+	echo "# Today" > ${option}
+	echo >> ${option}
+	cat "${FILE}" >> ${option}
+}
+
+_set_todo() {
+	local task=$1
+	echo "- ${task}" >> ${FILE}
+}
+
+_cmdline() {
+	# got this idea from here:
+	# http://kirk.webfinish.com/2009/10/bash-shell-script-to-use-getopts-with-gnu-style-long-positional-parameters/
+	local arg=
+	for arg
+	do
+		local delim=""
+		case "$arg" in
+			#translate --gnu-long-options to -g (short options)
+			--delete)         args="${args}-d ";;
+			--export)         args="${args}-e ";;
+			--help)           args="${args}-h ";;
+			--list)           args="${args}-l ";;
+			--open)           args="${args}-o ";;
+			#pass through anything else
+			*) [[ "${arg:0:1}" == "-" ]] || delim="\""
+				args="${args}${delim}${arg}${delim} ";;
+		esac
+	done
+
+	#Reset the positional parameters to the short options
+	eval set -- $args
+
+	while getopts ":dehlo" OPTION
+	do
+		case $OPTION in
+			d)
+				_delete $ARGS
+				exit 0
 				;;
-			-*|--*) 
-				printf 'bash: %s: %s: Invalid option\n' "$(basename "$0")" "$1"
-				printf '%s\n' "$usage"
-				exit
+			e)
+				_export $ARGS
+				exit 0
+				;;
+			h)
+				_usage
+				exit 0
+				;;
+			l)
+				_list $ARGS
+				exit 0
+				;;
+			o)
+				_open $ARGS
+				exit 0
+				;;
+			\?)
+				_is_not_valid_option "-$OPTARG"
+				_usage
+				exit 1
 				;;
 		esac
 	done
 
-	if [[ ! -f "${file}" ]]; then
-		echo "# Today" >> ${file}
-		echo >> ${file}
-	fi
-
-	echo "- [ ] ${@}" >> ${file}
+	return 0
 }
 
-_today "$@"
+main() {
+	_cmdline $ARGS
+
+	is_empty "${ARGS}" \
+		&& _usage
+
+	is_not_empty "${ARGS}" \
+		&& _set_todo "${ARGS}"
+}
+
+main
