@@ -1,0 +1,138 @@
+#!/usr/bin/env bash
+#
+# Author:
+#   Jeroenh Janssens (@jeroenhjanssens)
+#   http://jeroenjanssens.com/2013/08/16/quickly-navigate-your-filesystem-from-the-command-line.html
+#
+# Description:
+#   Quickly navigate your filesystem
+#
+# Dependencies:
+#   None
+#
+# Configuration:
+#   @param   file    required
+#
+# Usage:
+#   `cd path/to/common/dir && jump -m|--mark mark` => set a mark
+#   `jump -u|--unmark mark` => unset a mark
+#   `jump -l|--list` => list marks
+#   `jump mark` => jump to a mark
+
+readonly PROGNAME=$(basename $0)
+readonly PROGDIR=$(readlink $(dirname $0))
+readonly ARGS="$@"
+if [[ ! -z "${MARK_PATH}" ]]; then
+	readonly DIR="${MARK_PATH}"
+else
+	readonly DIR="${HOME}/.marks"
+fi
+if [[ ! -d "${DIR}" ]]; then
+	mkdir -p "${DIR}"
+fi
+
+_usage() {
+	printf "%s: usage: %s [-h|--help] [-l|--list] [-m|--mark] [-u|--unmark] %sdir%s" "$PROGNAME" "$PROGNAME" "$(tput smul)" "$(tput rmul)"
+}
+
+is_empty() {
+	local var=$1
+	[[ -z $var ]]
+}
+
+is_not_empty() {
+	local var=$1
+	[[ -n $var ]]
+}
+
+_is_not_valid_option() {
+	local option=$1
+	printf "bash: %s: %s: invalid option\n" "$PROGNAME" "$option"
+}
+
+_list() {
+	shift
+	#ls -l "$DIR" | sed 's/  / /g' | cut -d' ' -f9- | sed 's/ -/\t-/g' && echo
+	ls -l "$DIR" | tail -n +2 | sed 's/  / /g' | cut -d' ' -f12- | awk -F ' -> ' '{printf "%-10s -> %s\n", $1, $2}'
+}
+
+_mark() { 
+	shift
+	local mark=$1
+	ln -s "$PWD" "$DIR/$mark"
+}
+
+_unmark() { 
+	shift
+	local mark=$1
+	rm -i "$DIR/$mark"
+}
+
+_jump() { 
+	local mark=$1
+	cd -P "$DIR/$mark" 2>/dev/null || echo "No such mark: $mark"
+}
+
+_cmdline() {
+	# got this idea from here:
+	# http://kirk.webfinish.com/2009/10/bash-shell-script-to-use-getopts-with-gnu-style-long-positional-parameters/
+	local arg=
+	for arg
+	do
+		local delim=""
+		case "$arg" in
+			#translate --gnu-long-options to -g (short options)
+			--help)         args="${args}-h ";;
+			--list)         args="${args}-d ";;
+			--mark)         args="${args}-e ";;
+			--unmark)       args="${args}-l ";;
+			#pass through anything else
+			*) [[ "${arg:0:1}" == "-" ]] || delim="\""
+				args="${args}${delim}${arg}${delim} ";;
+		esac
+	done
+
+	#Reset the positional parameters to the short options
+	eval set -- $args
+
+	while getopts ":hlmu" OPTION
+	do
+		case $OPTION in
+			h)
+				_usage
+				exit 0
+				;;
+			l)
+				_list $ARGS
+				exit 0
+				;;
+			m)
+				_mark $ARGS
+				exit 0
+				;;
+			u)
+				_unmark $ARGS
+				exit 0
+				;;
+			\?)
+				_is_not_valid_option "-$OPTARG"
+				_usage
+				exit 1
+				;;
+		esac
+	done
+
+	return 0
+}
+
+main() {
+	_cmdline $ARGS
+
+	is_empty "${ARGS}" \
+		&& _usage
+
+	is_not_empty "${ARGS}" \
+		&& _jump "${ARGS}"
+}
+
+main

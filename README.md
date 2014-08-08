@@ -2,7 +2,7 @@
 
 Just a lot of bash functions and scripts I've created and collected over the years.
 
-[![Version 2.1.0](http://img.shields.io/badge/version-2.1.0-brightgreen.svg)](https://github.com/chrisopedia/bash-utils/releases/tag/2.1.0) [![Stories in Ready](https://badge.waffle.io/chrisopedia/bash-utils.png?label=Ready)](http://waffle.io/chrisopedia/bash-utils)
+[![Version 2.3.0](http://img.shields.io/badge/version-2.3.0-brightgreen.svg)](https://github.com/chrisopedia/bash-utils/releases/tag/2.3.0) [![Stories in Ready](https://badge.waffle.io/chrisopedia/bash-utils.png?label=Ready)](http://waffle.io/chrisopedia/bash-utils)
 
 ## Requirements
 
@@ -33,9 +33,11 @@ $ bash -c "$(curl -#fL raw.github.com/chrisopedia/bash-utils/go/install)"
 * `fs` - Determine size of a file or total size of a directory
 * `get-cert-names` - Show all the names (CNs and SANs) listed in the SSL certificate for a given domain
 * `gitio` - Turns a github.com URL into a git.io URL
+* `git-updateall` - Runs `git pull` on every directory within the current directory
 * `httpcompression` - Test if HTTP compression (RFC 2616 + SDCH) is enabled for a given URL
 * `ie-vm` - Download the Virtual Box images for IE VMs
 * `json` - Syntax-highlight JSON strings or files
+* `jump` - Quickly navigate your filesystem
 * `lint` - Allows you to check your html, css or js
 * `makefile` - Creates a Makefile for encrypting passwords/sensitive data in repos
 * miscellaneous - Various helper scripts
