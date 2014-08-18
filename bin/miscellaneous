@@ -187,3 +187,10 @@ file-to-string() {
 	# print out result with last character removed
 	echo "${tmp%%??}\n"
 }
+change_version() {
+	local old=$1
+	local new=$2
+	local file=$3
+	local regex="s/$old/$new/g"
+	perl -pi -e $regex $file
+}
