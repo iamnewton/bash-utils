@@ -2,7 +2,7 @@
 
 Just a lot of bash functions and scripts I've created and collected over the years.
 
-[![Version 2.3.0](http://img.shields.io/badge/version-2.3.0-brightgreen.svg)](https://github.com/chrisopedia/bash-utils/releases/tag/2.3.0) [![Stories in Ready](https://badge.waffle.io/chrisopedia/bash-utils.png?label=Ready)](http://waffle.io/chrisopedia/bash-utils)
+[![Version 2.4.0](http://img.shields.io/badge/version-2.4.0-brightgreen.svg)](https://github.com/chrisopedia/bash-utils/releases/tag/2.4.0) [![Stories in Ready](https://badge.waffle.io/chrisopedia/bash-utils.png?label=Ready)](http://waffle.io/chrisopedia/bash-utils)
 
 ## Requirements
 
