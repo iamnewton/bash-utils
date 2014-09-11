@@ -40,7 +40,7 @@ printf "%s┃%s Adding https://github.com/%s/%s.git as origin...%s\n" "$(tput se
 git remote add origin "https://github.com/${GITHUB_USER}/${REPO}.git"
 
 printf "%s┃%s Downloading changes from origin...%s\n" "$(tput setaf 6)" "$(tput sgr0 ; tput setaf 7)" "$(tput sgr0)"
-git fetch --tags origin master
+git fetch origin master
 
 # Reset the index and working tree to the fetched HEAD
 # (submodules are cloned in the subsequent sync step)
