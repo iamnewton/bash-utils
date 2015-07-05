@@ -1,0 +1,121 @@
+#!/usr/bin/env bash
+
+# constants
+readonly PROGNAME="$(basename "$0")"
+readonly VERSION="0.1.0"
+readonly TODAY=$(date +"%m-%d-%y")
+readonly LOG="$HOME/Library/Logs/${PROGNAME}.log"
+readonly ARGS="$@"
+
+is_file() {
+	local file=$1
+	[[ -f $file ]]
+}
+_is_not_valid_option() {
+	local option=$1
+	printf "bash: %s: %s: invalid option\n" "$PROGNAME" "$option"
+}
+_print_error() {
+	local message=$1
+	local timestamp="$(date)"
+	echo "$timestamp" "ERROR: " "$message" >> "$LOG"
+	printf "%s⊘ Error:%s %s. Aborting!\n\n" "$(tput setaf 1)" "$(tput sgr0)" "$message"
+}
+_require_prog() {
+	local prog=$1
+	local msg=$2
+	local url=$3
+	type -P "$prog" >/dev/null || {
+		_print_error "$msg"
+		echo "Download it at $url"
+		exit 2
+	}
+}
+_version() {
+	printf 'Version %s\n' "$VERSION"
+}
+_usage() {
+	printf "%s: usage: %s [-h|--help] [-v|--version] file" "$PROGNAME" "$PROGNAME"
+}
+_strip_extension() {
+	local file="$1"
+	
+	file="${file%%????}"
+}
+_print_help() {
+	cat <<- EOF
+
+	usage: $PROGNAME [options]
+
+	Setup a brand new Mac
+
+	OPTIONS:
+    -h --help              Show this help
+    -v --version           Display $PROGNAME version
+
+	Examples:
+	$PROGNAME mypdf.pdf && elinks mypdf.pdf.html
+	Print current version:
+    $PROGNAME --version
+
+	Run:
+    $PROGNAME
+
+	EOF
+}
+# options
+cmdline() {
+	# got this idea from here:
+	# http://kirk.webfinish.com/2009/10/bash-shell-script-to-use-getopts-with-gnu-style-long-positional-parameters/
+	local arg=
+	for arg
+	do
+		local delim=""
+		case "$arg" in
+			#translate --gnu-long-options to -g (short options)
+			--help)         args="${args}-h ";;
+			--version)      args="${args}-v ";;
+			#pass through anything else
+			*) [[ "${arg:0:1}" == "-" ]] || delim="\""
+				args="${args}${delim}${arg}${delim} ";;
+		esac
+	done
+
+	#Reset the positional parameters to the short options
+	eval set -- "$args"
+
+	while getopts ":ehptv" OPTION
+	do
+		case $OPTION in
+			h)
+				_print_help
+				exit 0
+				;;
+			v)
+				_version
+				exit 0
+				;;
+			\?)
+				_is_not_valid_option "-$OPTARG"
+				usage
+				exit 1
+				;;
+		esac
+	done
+
+	return 0
+}
+_convert_to_html() {
+	local input="$1"
+	local name="$(_strip_extension "$input")"
+	is_file "$input" \
+		&& pdftohtml -stdout $input > $name.html;
+}
+
+main() {
+	# install libraries
+	_require_prog pdftohtml "pdftohtml is required to convert pdfs to html" http://pdftohtml.sourceforge.net \
+		&& _convert_to_html
+}
+
+main
