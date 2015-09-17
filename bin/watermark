@@ -1,0 +1,97 @@
+#!/usr/bin/env bash
+#
+# Author(s):
+#   David Walsh (http://davidwalsh.name/watermark-images-videos)
+#
+# Description:
+#   Watermark an image
+#
+# Dependencies:
+#   imagemagick
+#
+# Configuration:
+#   @param    type    optional
+#
+# Usage:
+#   `watermark [--type [type]] watermark source output
+
+
+_watermark() {
+	# constants
+	readonly PROGNAME="$(basename "$0")"
+	readonly ARGS="$@"
+
+	if ! type -P 'composite' &> /dev/null; then
+		printf "%s⊘ Error:%s ImageMagick is required to run %s. (http://www.imagemagick.org/)\n" "$(tput setaf 1)" "$(tput sgr0)" "$PROGNAME"
+		printf "Aborting!\n"
+		exit
+	fi
+
+	local usage="%s: usage: %s [-h|--help] [-t|--type [image|gif|video] %swatermark%s %ssource%s %soutput%s" "$PROGNAME" "$PROGNAME" "$(tput smul)" "$(tput rmul)" "$(tput smul)" "$(tput rmul)" "$(tput smul)" "$(tput rmul)"
+
+
+	local opt
+	local type="image"
+
+	# Test for known flags
+	for opt in $ARGS
+	do
+		case $opt in
+			-h|--help)
+				printf "%s\n" "${usage}"
+				exit
+				;;
+			-t|--type)
+				if [[ ! -z "$2" ]]; then
+					readonly type="$2"
+					shift 2
+				else
+					readonly type="image"
+					printf "%s⚠ Warning:%s No type was passed. Defaulting to 'image'.\n" "$(tput setaf 3)" "$(tput sgr0)"
+					shift 1
+				fi
+				;;
+			# test for an invalid flag, exit if not a valid flag
+			-*|--*)
+				printf "%s: usage: %s: invalid option\n%s\n" "$(basename "$0")" "$opt" "${usage}"
+				exit 1
+				;;
+		esac
+	done
+
+	local watermark="$1"
+	local source="$2"
+	local output="$3"
+	local location="southeast"
+
+	if [[ -z "${watermark}" || ! -f "${watermark}" ]]; then
+		printf "%s⊘ Error:%s A watermark image is required.\n" "$(tput setaf 1)" "$(tput sgr0)"
+		printf "%s\n" "${usage}"
+		exit 1
+	fi
+	if [[ -z "${source}" || ! -f "${source}" ]]; then
+		printf "%s⊘ Error:%s A source image is required.\n" "$(tput setaf 1)" "$(tput sgr0)"
+		printf "%s\n" "${usage}"
+		exit 1
+	fi
+	if [[ -z "${output}" ]]; then
+		output="${source}-watermarked.jpg"
+	fi
+
+	# image
+	if [[ "${type}" == 'image' ]]; then
+		composite -gravity "${location}" -geometry +10+10 -dissolve 75% "${watermark}" "${source}" "${output}"
+	fi
+
+	# animated gif
+	if [[ "${type}" == 'gif' ]]; then
+		convert "${source}" -coalesce -gravity "${location}" -geometry +10+10 null: "${watermark}" -layers composite -layers optimize "${output}"
+	fi
+
+	# Video
+	if [[ "${type}" == 'video' ]]; then
+		ffmpeg -i "${source}" -i "${watermark}" -filter_complex "overlay=10:10" "${output}"
+	fi
+}
+
+_watermark "$@"
