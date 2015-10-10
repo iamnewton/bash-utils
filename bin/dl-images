@@ -1,0 +1,41 @@
+#!/usr/bin/env bash
+#
+# Author:
+#   Newton (@chrisopedia)
+#
+# Description:
+#   Downloads all images from a site
+#
+# Dependencies:
+#   none
+#
+# Configuration:
+#   @param  directory    required
+#
+# Usage:
+#   `dl-images www.google.com`
+
+_dl-images() {
+	local usage="$(basename "$0"): usage: $(basename "$0") $(tput smul)url$(tput rmul)"
+
+	# Test for known flags
+	for opt in "$@"
+	do
+		case $opt in
+			-h|--help)
+				printf "%s\n" "${usage}"
+				exit
+				;;
+			# test for an invalid flag, exit if not a valid flag
+			-*|--*)
+				printf "%s: usage: %s: invalid option\n%s\n" "$(basename "$0")" "$opt" "${usage}"
+				exit 1
+				;;
+		esac
+	done
+
+	wget -r -P "$PWD" -A jpg,jpeg,gif,png "http://$1"
+}
+
+_dl-images "$@"
+
