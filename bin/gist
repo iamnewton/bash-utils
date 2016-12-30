@@ -1,0 +1,51 @@
+#!/usr/bin/env bash
+#
+# Author:
+#   Remy Sharp (@rem)
+#
+# Description:
+#   Extend the functionality of brew gist
+#
+# Usage:
+#   `gist filename.json` — create a gist from the filename.json with the name filename.json
+#   `cat filename.json | gist` – create a new gist from STDIN
+#   `gist` – paste whatever's on the clipboard and create a new gist called paste.txt
+
+_gist() {
+	local usage="$(basename "$0"): usage: $(basename "$0") [[-h|--help]]"
+	local opt
+
+	# Test for known flags
+	for opt in "$@"
+	do
+		case $opt in
+			-h|--help)
+				printf "%s\n" "${usage}"
+				exit
+				;;
+			# test for an invalid flag, exit if not a valid flag
+			-*|--*)
+				printf "%s: usage: %s: invalid option\n%s\n" "$(basename "$0")" "$opt" "${usage}"
+				exit 1
+				;;
+		esac
+	done
+
+	# if there's nothing piped on STDIN
+	if [ -t 0 ]; then
+		# and there's no arguments...
+		if ((! $# )); then
+			# take what's on the clipboard and paste it in a new gist
+			command gist -Pcop -f paste.txt
+		else
+			# create a gist based on the arguments give
+			command gist -cop "$@"
+		fi
+	else
+		# otherwise, create a gist, with arguments, but use the
+		# content from STDIN
+		command gist -cop "$@" < /dev/stdin
+	fi
+}
+
+_gist "$@"
