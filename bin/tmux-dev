@@ -1,0 +1,178 @@
+#!/usr/bin/env bash
+
+# constants
+readonly PROGNAME="$(basename "$0")"
+readonly SESSION="$(basename "$PWD")"
+readonly VERSION="1.0.0"
+readonly LOG="$HOME/Library/Logs/${PROGNAME}.log"
+readonly ARGS="$@"
+
+# utility functions
+_is_empty() {
+	local var=$1
+	[[ -z $var ]]
+}
+_is_not_valid_option() {
+	local option=$1
+	printf "bash: %s: %s: invalid option\n" "$PROGNAME" "$option"
+}
+_print_error() {
+	local message=$1
+	local timestamp="$(date)"
+	echo "$timestamp" "ERROR: " "$message" >> "$LOG"
+	printf "%s⊘ Error:%s %s. Aborting!\n\n" "$(tput setaf 1)" "$(tput sgr0)" "$message"
+}
+_require_prog() {
+	local prog=$1
+	local msg=$2
+	local url=$3
+	type -P "$prog" >/dev/null || {
+		_print_error "$msg"
+		echo "Download it at $url"
+		exit 2
+	}
+}
+_usage() {
+	printf "%s: usage: %s [-h|--help] [--prefix] [-v|--version]"  "$PROGNAME" "$PROGNAME"
+}
+_print_help() {
+	cat <<- EOF
+
+	usage: $PROGNAME [options]
+
+	Setup a brand new Mac
+
+	OPTIONS:
+    -h --help              Show this help
+    -t --test              Run unit test to check the program
+    -v --version           Display $PROGNAME version
+    --prefix               Display $PROGNAME install path. Default: $PROGDIR
+
+	Examples:
+	Run all tests:
+    $PROGNAME --test
+
+	Print current version:
+    $PROGNAME --version
+
+	Run:
+    $PROGNAME
+
+	EOF
+}
+_print_directory() {
+	echo "$PROGDIR"
+}
+_edit() {
+	cd "$PROGDIR" \
+	&& vim
+}
+_run_tests() {
+	_require_prog roundup "Roundup is required to run tests" https://github.com/bmizerany/roundup \
+		&& roundup ./tests/*.sh
+}
+_version() {
+	printf 'Version %s\n' "$VERSION"
+}
+# options
+cmdline() {
+	# got this idea from here:
+	# http://kirk.webfinish.com/2009/10/bash-shell-script-to-use-getopts-with-gnu-style-long-positional-parameters/
+	local arg=
+	for arg
+	do
+		local delim=""
+		case "$arg" in
+			#translate --gnu-long-options to -g (short options)
+			--edit)         args="${args}-e ";;
+			--help)         args="${args}-h ";;
+			--prefix)       args="${args}-p ";;
+			--test)         args="${args}-t ";;
+			--version)      args="${args}-v ";;
+			#pass through anything else
+			*) [[ "${arg:0:1}" == "-" ]] || delim="\""
+				args="${args}${delim}${arg}${delim} ";;
+		esac
+	done
+
+	#Reset the positional parameters to the short options
+	eval set -- "$args"
+
+	while getopts ":ehptv" OPTION
+	do
+		case $OPTION in
+			e)
+				_edit
+				exit 0
+				;;
+			h)
+				_print_help
+				exit 0
+				;;
+			p)
+				_print_directory
+				exit 0
+				;;
+			t)
+				_run_tests
+				exit 0
+				;;
+			v)
+				_version
+				exit 0
+				;;
+			\?)
+				_is_not_valid_option "-$OPTARG"
+				usage
+				exit 1
+				;;
+		esac
+	done
+
+	return 0
+}
+create_session() {
+	local opt="$1"
+
+	# create a new session in a detached state from the current directory
+	tmux -2 new-session -d -s "$SESSION"
+
+	# intial window is renamed
+	tmux rename-window -t "$SESSION":1 vim
+	# create a horizontal split
+	tmux split-window -h
+	# select the left pane
+	tmux select-pane -t 0
+	# resize the left pane by 30 more lines to the right
+	tmux resize-pane -R 30
+
+	# create a new window and run vim
+	tmux new-window -t "$SESSION" -a -n git
+
+	# check if something was passed in as an arg
+	if is_empty "$opt"; then
+		# create new window and run npm start command to build
+		tmux new-window -t "$SESSION" -a -n build 'npm start'
+	else
+		# for F+T building, uses custom script
+		tmux new-window -t "$SESSION" -a -n build 'bash ./run'
+	fi
+
+	# select the first window
+	tmux select-window -t "$SESSION":1
+	# reattach the session
+	tmux -2 attach -t "$SESSION"
+	# run vim
+	vim
+}
+
+# main
+main() {
+	cmdline "$ARGS"
+	local option="$1"
+
+	_require_prog tmux "tmux is required to install libraries" https://tmux.github.io \
+		&& create_session "$option"
+}
+
+main "$@"
