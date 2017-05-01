@@ -145,12 +145,15 @@ create_session() {
 	tmux select-pane -t 0
 	# resize the left pane by 30 more lines to the right
 	tmux resize-pane -R 30
+	# select left pane & run vim
+	tmux select-pane -t 0
+	tmux send-keys 'vim' 'C-m'
 
 	# create a new window and run vim
 	tmux new-window -t "$SESSION" -a -n git
 
 	# check if something was passed in as an arg
-	if is_empty "$opt"; then
+	if _is_empty "$opt"; then
 		# create new window and run npm start command to build
 		tmux new-window -t "$SESSION" -a -n build 'npm start'
 	else
@@ -162,8 +165,6 @@ create_session() {
 	tmux select-window -t "$SESSION":1
 	# reattach the session
 	tmux -2 attach -t "$SESSION"
-	# run vim
-	vim
 }
 
 # main
