@@ -1,0 +1,44 @@
+#!/usr/bin/env bash
+#
+# Author:
+#   Reid Evans (@ReidNEvans)
+#
+# Description:
+#   Find occurrences of text in files and open vim with each file in a tab
+#
+# Usage:
+#   `search 'foo bar'`
+
+_search() {
+	local usage="$(basename $0): usage: $(basename $0) term"
+	local opt
+	local term="$1"
+
+	# Test for known flags
+	for opt in $@
+	do
+		case $opt in
+			-h|--help)
+				printf "%s\n" "${usage}"
+				exit
+				;;
+			# test for an invalid flag, exit if not a valid flag
+			-*|--*)
+				printf "%s: usage: %s: invalid option\n%s\n" "$(basename "$0")" "$opt" "${usage}"
+				exit 1
+				;;
+		esac
+	done
+
+	if [[ ! "${term}" ]]; then
+		printf "bash: %s: No term specified\n" "$(basename "$0")"
+		exit 1;
+	fi
+
+	grep -lr "${term}" . | xargs vim -p --
+}
+
+# By putting the above code inside a function, if this file is sourced (which
+# is required for external aliases/functions to be used as commands), vars
+# can be local and return can be used to exit.
+_search "$@"
