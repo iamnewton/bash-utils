@@ -2,7 +2,7 @@
 
 REPO="bash-utils"
 DIR="/usr/local/opt/${REPO}"
-GITHUB_USER="chrisopedia"
+GITHUB_USER="iamnewton"
 
 # If missing, download and extract the repository
 if [[ ! -d "${DIR}" ]]; then
