@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 #
 # Author:
-#   Newton (@chrisopedia)
+#   Newton
 #
 # Description:
 #   Creates/updates Today's todo list
@@ -60,7 +60,7 @@ _list() {
 		exit 3;
 	else
 		case $option in
-			all) 
+			all)
 				ls -1 "${DIR}"
 				;;
 			*)
@@ -90,7 +90,7 @@ _delete() {
 	local option="$1"
 
 	case $option in
-		all) 
+		all)
 			rm -rf ${DIR}/*
 			;;
 		*)

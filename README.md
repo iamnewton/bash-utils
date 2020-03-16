@@ -1,8 +1,6 @@
-# bash-utils
+# BASH Utilities
 
-Just a lot of bash functions and scripts I've created and collected over the years.
-
-[![Version 2.4.0](http://img.shields.io/badge/version-2.4.0-brightgreen.svg)](https://github.com/chrisopedia/bash-utils/releases/tag/2.4.0) [![Stories in Ready](https://badge.waffle.io/chrisopedia/bash-utils.png?label=Ready)](http://waffle.io/chrisopedia/bash-utils)
+A lot of bash functions and scripts I've created and collected over the years.
 
 ## Requirements
 
@@ -13,7 +11,7 @@ For the most part, there shouldn't be any dependencies, but each script will hav
 ## One-line Install
 
 ```bash
-$ bash -c "$(curl -#fL raw.github.com/chrisopedia/bash-utils/go/install)"
+$ bash -c "$(curl -#fL raw.github.com/iamnewton/bash-utils/go/install)"
 ```
 
 ## Features

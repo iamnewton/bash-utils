@@ -1,10 +1,10 @@
 #!/usr/bin/env bash
 #
 # Author:
-#   Newton (@chrisopedia)
+#   Newton
 #
 # Description:
-#   Finds all the @TODOs in a specified directory. Defaults to the 
+#   Finds all the @TODOs in a specified directory. Defaults to the
 #   current directory.
 #
 # Dependencies:

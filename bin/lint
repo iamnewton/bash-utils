@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 #
 # Author:
-#   Newton (@chrisopedia)
+#   Newton
 #
 # Description:
 #   Allows you to run html, css or js linter from command line
@@ -62,7 +62,7 @@ _lint() {
 		else
 			jslint "$2"
 		fi
-	else 
+	else
 		printf '%s: usage: %s: invalid option\n%s\n' "$(basename "$0")" "$1" "${usage}"
 		exit 2
 	fi

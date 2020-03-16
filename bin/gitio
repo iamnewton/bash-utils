@@ -3,7 +3,7 @@
 # Author:
 #   Chris Wanstrath (@defunkt)
 #
-# Description: 
+# Description:
 #   Turns a github.com URL into a git.io URL
 #   Copies the git.io URL to your clipboard.
 #   [Source](https://gist.github.com/defunkt/1209316)
@@ -15,9 +15,9 @@
 #   @param   url    required
 #   @param   code   optional, specify your own shortener
 #
-# Usage: 
+# Usage:
 #   ```
-#   $ gitio https://github.com/chrisopedia/bash mybash
+#   $ gitio https://github.com/iamnewton/bash mybash
 #   $ http://git.io/mybash
 #   ```
 
