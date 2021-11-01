@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 #
 # Author:
-#   Miscellaneous 
+#   Miscellaneous
 #
 # Description:
 #   Various helper functions
@@ -147,8 +147,8 @@ np() {
 	npm install
 	npm test && npm version ${1:=patch}
 	npm publish
-	git push origin master
-	git push origin master --tags
+	git push origin main
+	git push origin main --tags
 }
 
 # Test whether we're in a git repo

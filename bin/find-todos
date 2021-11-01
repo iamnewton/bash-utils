@@ -75,7 +75,7 @@ _find-todos() {
 		echo >> "${output}"
 		# grep -v grep excludes this line from being included (http://superuser.com/a/409658)
 		github_url="$(git remote show -n origin | grep 'Fetch URL' | awk -F: '{print $2 ":" substr($3, 0, length($3)-4) }')"
-		grep -nr "@TODO:" ${directory} | grep -v grep | awk -F: 'path=split($1,arr,"/") ( length($4) > 0 ) {print "- [ ] ["arr[length(arr) - 1]"/"arr[length(arr)]":"$2"]("url"/blob/master/"arr[length(arr) - 1]"/"arr[length(arr)]"#L"$2") - "substr($4,2)}' url="$github_url" >> "${output}"
+		grep -nr "@TODO:" ${directory} | grep -v grep | awk -F: 'path=split($1,arr,"/") ( length($4) > 0 ) {print "- [ ] ["arr[length(arr) - 1]"/"arr[length(arr)]":"$2"]("url"/blob/main/"arr[length(arr) - 1]"/"arr[length(arr)]"#L"$2") - "substr($4,2)}' url="$github_url" >> "${output}"
 		printf "TODOs can be found in ${output}\n"
 	fi
 }
