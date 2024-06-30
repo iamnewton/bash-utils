@@ -1,0 +1,25 @@
+#!/usr/bin/env bash
+#
+# Author:
+#   Newton
+#
+# Description:
+#   Searchs for a term across a project; replaces all instances
+#
+# Dependencies:
+#   None
+#
+# Usage
+#   replace lodash/cloneDeep lodash
+#   replace shared/constants/messages shared/constants
+#   replace element_iframe_WhenExist element_iframe_WhenExist/tpocHostFrame
+#   replace loan-summary/urla views/urla
+
+_replace() {
+	# rg "loan-summary\/urla" --files-with-matches | xargs sed -i '' 's/loan-summary\/urla/views\/urla/g'
+	local $search;
+	local $replacment;
+	#
+	# rg "loan-summary\/urla" --files-with-matches | xargs sed -i '' 's/loan-summary\/urla/views\/urla/g'
+	rg ${search} --files-with-matches | xargs sed -i '' 's/${search}/${replacement}/g'
+}
